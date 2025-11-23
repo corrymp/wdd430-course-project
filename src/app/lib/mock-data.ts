@@ -22,7 +22,6 @@ const tagTitles: string[] = [
   'Eco',
   'Free Shipping',
   'Furnature',
-  'Girly',
   'Green',
   'Grey',
   'Halloween',
@@ -190,7 +189,6 @@ const noun: string[] = [
 ];
 
 const vibe: string[] = [
-  'Amulet',
   'Aura',
   'Bloom',
   'Blossom',
@@ -217,6 +215,104 @@ const vibe: string[] = [
 
 const joiner: string[] = ['of', 'for the', 'with'];
 
+const USStates: string[] = [
+  'Alabama',
+  'Alaska',
+  'Arizona',
+  'Arkansas',
+  'California',
+  'Colorado',
+  'Connecticut',
+  'Delaware',
+  'Florida',
+  'Georgia',
+  'Hawaii',
+  'Idaho',
+  'Illinois',
+  'Indiana',
+  'Iowa',
+  'Kansas',
+  'Kentucky',
+  'Louisiana',
+  'Maine',
+  'Maryland',
+  'Massachusetts',
+  'Michigan',
+  'Minnesota',
+  'Mississippi',
+  'Missouri',
+  'Montana',
+  'Nebraska',
+  'Nevada',
+  'New Hampshire',
+  'New Jersey',
+  'New Mexico',
+  'New York',
+  'North Carolina',
+  'North Dakota',
+  'Ohio',
+  'Oklahoma',
+  'Oregon',
+  'Pennsylvania',
+  'Rhode Island',
+  'South Carolina',
+  'South Dakota',
+  'Tennessee',
+  'Texas',
+  'Utah',
+  'Vermont',
+  'Virginia',
+  'Washington',
+  'West Virginia',
+  'Wisconsin',
+  'Wyoming'
+];
+
+const totallyRealCityNames: string[] = [
+  'Anywhere',
+  'Bradford',
+  'Brookside',
+  'Centerville',
+  'Clayton',
+  'Clearwater',
+  'Concordia',
+  'Eastbrook',
+  'Fairfax',
+  'Fairview',
+  'Freedom',
+  'Glenwood',
+  'Goodville',
+  'Grandview',
+  'Greenview',
+  'Greenville',
+  'Hampton',
+  'Harmony',
+  'Hopewell',
+  'Jamison',
+  'Kingston',
+  'Lakeview',
+  'Midway',
+  'Northfield',
+  'Nowhere',
+  'Pine Ridge',
+  'Plainfield',
+  'Pleasanton',
+  'Providence',
+  'Red Bluff',
+  'Riverbend',
+  'Rockville',
+  'Rosewood',
+  'Shadowbrook',
+  'Silverleaf',
+  'Somerset',
+  'Somewhere',
+  'Springfield',
+  'Twin Oaks',
+  'Unionville',
+  'Westbridge',
+  'Wherever'
+];
+
 //#endregion
 
 //#region utils
@@ -229,11 +325,90 @@ const joiner: string[] = ['of', 'for the', 'with'];
  */
 const makeList = <L>(fn: (id?: Id) => L, count?: number, ids: Id[] = []): Array<L> => Array.from({ length: abs(Number(count ?? 10)) }, (i: number) => fn(ids[i]));
 
+/**
+ * @param {Array} list - array of items to pick from
+ * @param {number} force - index to force a non-random selection
+ * @returns random item from array
+ */
 const randomItemFromList = <T>(list: Array<T>, force?: number): T => list[floor(force ?? random() * list.length)];
 
+/**
+ * @param {Array<string>} tmp - template string to populate
+ * @param {Array<Array<string>>} keys - arrays of items to pick a random item from to insert into the template
+ * @returns {string} build string from template
+ */
 const optionedTemplate = (tmp: ReadonlyArray<string>, ...keys: ReadonlyArray<Array<string>>) => tmp[0] + keys.map((key: string[], i) => randomItemFromList(key) + tmp[i + 1]).join('');
 
-const randomInRange = (lo: number, hi: number) => lo + floor(random() * (floor(hi) - ceil(lo) + 1));
+/**
+ * @param {number} lo - minimum number allowed
+ * @param {number} hi - maximum number allowed
+ * @returns {number} random integer within desired range
+ */
+const randomInRange = (lo: number, hi: number): number => lo + floor(random() * (floor(hi) - ceil(lo) + 1));
+
+//#region placeholder image gen
+
+// data URI version
+/**
+ * @param {number} width - width of placeholder image
+ * @param {number} height - height of placeholder image
+ * @param {string?} bg - background fill color; default: #fff
+ * @param {string?} lines - lines stroke color; default: #aaa
+ * @returns {string} data URI string for an SVG with desired width and height
+ */
+export function placeholderImage(width: number, height: number, bg?: string, lines?: string): string {
+  if (bg && bg[0] === '#') bg = bg.slice(1);
+  if (lines && lines[0] === '#') lines = lines.slice(1);
+  return `data:image/svg+xml,
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"%3E
+ <rect width="100%25" height="100%25" fill="%23${bg ?? 'fff'}"/%3E
+ <g stroke-width="10" stroke="%23${lines ?? 'aaa'}"%3E
+  <rect width="100%25" height="100%25" fill="none"/%3E
+  <g transform="translate(-5 -5)" stroke-width="5"%3E
+   <line x1="10" y1="10" x2="100%25" y2="100%25"/%3E
+   <line x1="100%25" y1="10" x2="10" y2="100%25"/%3E
+  </g%3E
+ </g%3E
+</svg%3E`.split('\n').map(i => i.trim()).join('');
+}
+
+// React element version (pre-compiled as this is not a JSX file)
+/**
+ * @param {JSX.Element.props} props
+ * @param {number} props.width - width of placeholder SVG
+ * @param {number} props.height - height of placeholder SVG
+ * @param {string?} props.bg - background fill color; default: #fff
+ * @param {string?} props.lines - lines stroke color; default: #aaa
+ * @returns {JSX.Element} React element SVG with desired width and height
+ */
+export function PlaceholderImage({ width, height, bg, lines }: { width: number; height: number; bg?: string; lines?: string; }): React.ReactSVGElement {
+  if (bg && bg[0] === '#') bg = bg.slice(1);
+  if (lines && lines[0] === '#') lines = lines.slice(1);
+  return (
+    // <svg xmlns="http://www.w3.org/2000/svg" width={width} height={height}>
+    React.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", width: width, height: height },
+      // <rect width="100%" height="100%" />
+      React.createElement("rect", { width: "100%", height: "100%", fill: bg ?? "#fff" }),
+      // <g stroke-width="10" stroke="#aaa">
+      React.createElement("g", { strokeWidth: 10, stroke: lines ?? "#aaa" },
+        // <rect width="100%" height="100%" fill="none" />
+        React.createElement("rect", { width: "100%", height: "100%", fill: "none" }),
+        // <g stroke-width="5" transform="translate(-5 -5)">
+        React.createElement("g", { transform: "translate(-5 -5)", strokeWidth: 5 },
+          // <line x1="10" y1="10" x2="100%" y2="100%"/>
+          React.createElement("line", { x1: 10, y1: 10, x2: "100%", y2: "100%" }),
+          // <line x1="100%" y1="10" x2="10" y2="100%"/>
+          React.createElement("line", { x1: "100%", y1: 10, x2: 10, y2: "100%" })
+        )
+        // </g>
+      )
+      // </g>
+    )
+    // </svg>
+  );
+}
+//#endregion
+
 //#endregion
 
 //#region ids
@@ -244,7 +419,7 @@ const userId = newIdGenerator();
 const productId = newIdGenerator();
 //#endregion
 
-//#region randoms
+//#region random names and such
 const randomTagTitle = (firstId?: number): string => randomItemFromList(tagTitles, firstId);
 const randomFirstName = (firstId?: number) => randomItemFromList(firstNames, firstId);
 const randomLastName = (firstId?: number) => randomItemFromList(lastNames, firstId);
@@ -263,17 +438,17 @@ const randomProductName = (): string => randomItemFromList([
 ]);
 
 const randomShopName = () => randomItemFromList([
-  optionedTemplate`${vibe} ${adjective}`,
-  optionedTemplate`${vibe} ${material}`,
-  optionedTemplate`${adjective} ${material}`,
   optionedTemplate`${adjective} ${noun}`,
   optionedTemplate`${adjective} ${vibe}`,
-  optionedTemplate`${material} ${adjective}`,
   optionedTemplate`${material} ${noun}`,
   optionedTemplate`${material} ${vibe}`,
 ]);
 
-const randomDate = () => new Date(randomInRange(Date.parse('2025-10-27'), Date.now()));
+const randomDate = () => new Date(randomInRange(Date.parse('2024-10-27'), Date.now()));
+
+const randomState = (): string => randomItemFromList(USStates);
+const randomTotallyRealCity = (): string => randomItemFromList(totallyRealCityNames);
+const randomPlace = (): string => `${randomTotallyRealCity()}, ${randomState()}`;
 
 //#endregion
 
@@ -283,11 +458,11 @@ export const mockTag = (id?: Id): Tag => ({ id: id ?? tagId(), title: randomTagT
 export const mockSeller = (id?: Id): Seller => ({
   id: id ?? sellerId(),
   name: randomFullName(),
-  location: 'Anyville, Idaforniah',
+  location: randomPlace(),
   picture: placeholderImage(200, 200),
   joinDate: randomDate(),
   shopName: randomShopName(),
-  shopBanner: placeholderImage(200,150)
+  shopBanner: placeholderImage(200, 150)
 });
 
 export const mockUser = (id?: Id): User => ({ id: id ?? userId(), name: randomFullName(), picture: 'example.com/pfp.png' });
@@ -302,48 +477,9 @@ export const mockProduct = (id?: Id): Product => ({
 });
 //#endregion
 
-//#region multiple
+//#region plural
 export const mockTagsList = (count?: number, ids?: Id[]): Tag[] => makeList(mockTag, count, ids);
 export const mockSellerList = (count?: number, ids?: Id[]): Seller[] => makeList(mockSeller, count, ids);
 export const mockUsersList = (count?: number, ids?: Id[]): User[] => makeList(mockUser, count, ids);
 export const mockProductsList = (count?: number, ids?: Id[]): Product[] => makeList(mockProduct, count, ids);
 //#endregion
-
-export function placeholderImage(width: number, height: number): string {
-  return `data:image/svg+xml,
-<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"%3E
- <rect width="100%25" height="100%25" fill="%23fff"/%3E
- <g stroke-width="10" stroke="%23aaa"%3E
-  <rect width="100%25" height="100%25" fill="none"/%3E
-  <g transform="translate(-5 -5)" stroke-width="5"%3E
-   <line x1="10" y1="10" x2="100%25" y2="100%25"/%3E
-   <line x1="100%25" y1="10" x2="10" y2="100%25"/%3E
-  </g%3E
- </g%3E
-</svg%3E`.split('\n').map(i => i.trim()).join('');
-}
-
-export function PlaceholderImage({ width, height }: { width: number; height: number; }) {
-  return (
-    // <svg xmlns="http://www.w3.org/2000/svg" width={width} height={height}>
-    React.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", width: width, height: height },
-      // <rect width="100%" height="100%" />
-      React.createElement("rect", { width: "100%", height: "100%", fill: "#fff" }),
-      // <g stroke-width="10" stroke="#aaa">
-      React.createElement("g", { strokeWidth: 10, stroke: "#aaa" },
-        // <rect width="100%" height="100%" fill="none" />
-        React.createElement("rect", { width: "100%", height: "100%", fill: "none" }),
-        // <g stroke-width="5" transform="translate(-5 -5)">
-        React.createElement("g", { transform: "translate(-5 -5)", strokeWidth: 5 },
-          // <line x1="10" y1="10" x2="100%" y2="100%"/>
-          React.createElement("line", { x1: 10, y1: 10, x2: "100%", y2: "100%" }),
-          // <line x1="100%" y1="10" x2="10" y2="100%"/>
-          React.createElement("line", { x1: "100%", y1: 10, x2: 10, y2: "100%" })
-        )
-        // </g>
-      )
-      // </g>
-    )
-    // </svg>
-  );
-}
