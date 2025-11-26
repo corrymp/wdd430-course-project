@@ -2,14 +2,9 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import { useState, useEffect, useRef, FormEvent } from 'react'
-
-// HandcraftedHaven Product Page (single-file React component for Next.js + Tailwind)
-// - Default export React component
-// - Uses Tailwind CSS classes (assumes Tailwind is configured in the project)
-// - Mock data included; replace fetch logic with real API calls as needed
+import "../productPage/productPage.css" // adjust path if different
 
 export default function ProductPage({ initialProduct = null }) {
-  // Mock product (used when no initialProduct prop is provided)
   const mockProduct = {
     id: 'prod-001',
     title: 'Handwoven Rwandan Sisal Basket',
@@ -20,9 +15,10 @@ export default function ProductPage({ initialProduct = null }) {
     price: 42.0,
     currency: 'USD',
     images: [
-      '/images/14 Documentary Maker Photos & High Res Pictures.jpeg',
-      '/images/Warli Handpainted Terracotta Clay Kullad Tea Cups….jpeg',
       '/images/Paper Wallmate Craft Ideas_.jpeg',
+      '/images/Uncut polki kundan bridal necklace set with backside meenakari work.jpeg',
+      '/images/Wooden Personalised Keyrings.jpeg',
+      '/images/Nordic Style Green Ceramic Dinnerware Set With Gold Inlay High End Porcelain Steak Plate And Bowl.jpeg'
     ],
     dimensions: '30cm x 25cm',
     weight: '500g',
@@ -44,22 +40,18 @@ export default function ProductPage({ initialProduct = null }) {
 
   const product = initialProduct || mockProduct
 
-  
   const [currentIndex, setCurrentIndex] = useState(0)
   const totalImages = product.images.length
-  const carouselRef = useRef(null)
+  const carouselRef = useRef<HTMLDivElement | null>(null)
 
-  
   const [qty, setQty] = useState(1)
   const [adding, setAdding] = useState(false)
   const [message, setMessage] = useState('')
 
-  
   const [reviews, setReviews] = useState(product.reviews || [])
   const [newReview, setNewReview] = useState({ rating: 5, text: '' })
 
   useEffect(() => {
-    
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') nextImage()
       if (e.key === 'ArrowLeft') prevImage()
@@ -79,7 +71,6 @@ export default function ProductPage({ initialProduct = null }) {
     setAdding(true)
     setMessage('')
     try {
-      
       await fetch('/api/cart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -96,13 +87,9 @@ export default function ProductPage({ initialProduct = null }) {
 
   async function submitReview(e: FormEvent) {
     e.preventDefault()
-    
     if (!newReview.text.trim()) return
     const reviewToAdd = { id: Date.now().toString(), user: 'You', ...newReview }
-
     try {
-      // Replace with POST to /api/reviews
-      // const res = await fetch(`/api/products/${product.id}/reviews`, ...)
       setReviews((r) => [reviewToAdd, ...r])
       setNewReview({ rating: 5, text: '' })
     } catch (err) {
@@ -110,11 +97,10 @@ export default function ProductPage({ initialProduct = null }) {
     }
   }
 
-  // Accessibility helpers: star rating SVG
   const Star = ({ filled, title = 'star' }: { filled: boolean; title?: string }) => (
     <svg
       aria-hidden={!title}
-      className="w-5 h-5 inline-block"
+      style={{ width: 18, height: 18, display: 'inline-block' }}
       viewBox="0 0 20 20"
       fill={filled ? 'currentColor' : 'none'}
       stroke="currentColor"
@@ -135,7 +121,6 @@ export default function ProductPage({ initialProduct = null }) {
     return Math.round((sum / reviews.length) * 10) / 10
   }
 
-  // JSON-LD structured data (product) for SEO
   const jsonLd = {
     '@context': 'https://schema.org/',
     '@type': 'Product',
@@ -143,102 +128,84 @@ export default function ProductPage({ initialProduct = null }) {
     image: product.images.map((src) => typeof src === 'string' ? src : ''),
     description: product.shortDescription,
     sku: product.id,
-    brand: {
-      '@type': 'Person',
-      name: product.seller.name,
-    },
+    brand: { '@type': 'Person', name: product.seller.name },
     offers: {
       '@type': 'Offer',
       priceCurrency: product.currency,
       price: product.price,
       availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
     },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: averageRating(),
-      reviewCount: reviews.length,
-    },
+    aggregateRating: { '@type': 'AggregateRating', ratingValue: averageRating(), reviewCount: reviews.length },
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+    <div className="p-page">
       <Head>
         <title>{product.title} — Handcrafted Haven</title>
         <meta name="description" content={product.shortDescription} />
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
       </Head>
 
-      <main className="max-w-6xl mx-auto bg-white shadow-md rounded-lg overflow-hidden">
-        <div className="md:flex">
+      <main className="p-card">
+        <div className="p-row">
           {/* Image gallery */}
-          <section className="md:w-1/2 p-4" aria-label="Product images">
-            <div className="relative rounded-md overflow-hidden" ref={carouselRef}>
-              <button
-                aria-label="Previous image"
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 p-2 rounded-full shadow-sm focus:outline-none"
-                onClick={prevImage}
-              >
-                ‹
-              </button>
+          <section className="p-gallery" aria-label="Product images">
+            <div className="p-image-main" ref={carouselRef}>
+              <button aria-label="Previous image" className="p-carousel-btn p-carousel-prev" onClick={prevImage}>‹</button>
+              <button aria-label="Next image" className="p-carousel-btn p-carousel-next" onClick={nextImage}>›</button>
 
-              <button
-                aria-label="Next image"
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 p-2 rounded-full shadow-sm focus:outline-none"
-                onClick={nextImage}
-              >
-                ›
-              </button>
-
-              <div className="relative w-full h-[350px] md:h-[450px] bg-gray-100 rounded-md overflow-hidden">
-
-                {/* Using next/image; in local dev ensure the images exist under /public/images */}
-                <Image
-                  src={product.images[currentIndex]}
-                  alt={`${product.title} image ${currentIndex + 1}`}
-                  fill
-                  objectFit="cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  priority
-                />
-              </div>
+              {/* main image uses next/image fill + css object-fit via className */}
+              <Image
+                src={product.images[currentIndex]}
+                alt={`${product.title} image ${currentIndex + 1}`}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority
+                style={{ objectFit: 'cover' }}
+              />
             </div>
 
-            <div className="mt-3 flex gap-2" role="tablist" aria-label="Image thumbnails">
+            <div className="p-thumbs" role="tablist" aria-label="Image thumbnails">
               {product.images.map((src, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrentIndex(i)}
                   aria-selected={currentIndex === i}
-                  className={`w-20 h-20 rounded-md overflow-hidden border ${currentIndex === i ? 'ring-2 ring-offset-2 ring-indigo-300' : 'border-gray-200'}`}
+                  className="p-thumb-btn"
                 >
-                  <Image src={src} alt={`${product.title} thumbnail ${i + 1}`} layout="fill" objectFit="cover" />
+                  <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                    <Image src={src} alt={`${product.title} thumbnail ${i + 1}`} fill style={{ objectFit: 'cover' }} />
+                  </div>
                 </button>
               ))}
             </div>
           </section>
 
           {/* Product details */}
-          <section className="md:w-1/2 p-6">
-            <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">{product.title}</h1>
-            <div className="mt-2 flex items-center gap-3">
-              <span className="inline-block bg-indigo-50 text-indigo-700 px-2 py-1 rounded-md text-sm">{product.category}</span>
-              <div className="flex items-center gap-1" aria-label={`Average rating ${averageRating()} out of 5`}>
+          <section className="p-details">
+            <h1 className="p-title">{product.title}</h1>
+
+            <div className="p-meta">
+              <span className="p-badge">{product.category}</span>
+
+              <div className="p-rating" aria-label={`Average rating ${averageRating()} out of 5`}>
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star key={i} filled={i < Math.round(averageRating())} title={`${i + 1} star`} />
                 ))}
-                <span className="ml-2 text-sm text-gray-600">{averageRating()} ({reviews.length})</span>
+                <span style={{ marginLeft: 8, fontSize: 14, color: '#6b7280' }}>{averageRating()} ({reviews.length})</span>
               </div>
             </div>
 
-            <p className="mt-4 text-gray-700 whitespace-pre-line">{product.shortDescription}</p>
+            <p className="p-short">{product.shortDescription}</p>
 
-            <div className="mt-6 flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="p-purchase">
               <div>
-                <div className="text-3xl font-bold">{product.currency} {product.price.toFixed(2)}</div>
-                <div className="text-sm text-gray-500">{product.stock > 0 ? `${product.stock} available` : 'Out of stock'}</div>
+                <div className="p-price">{product.currency} {product.price.toFixed(2)}</div>
+                <div className="p-stock">{product.stock > 0 ? `${product.stock} available` : 'Out of stock'}</div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <label htmlFor="quantity" className="sr-only">Quantity</label>
                 <input
                   id="quantity"
@@ -247,14 +214,14 @@ export default function ProductPage({ initialProduct = null }) {
                   max={product.stock}
                   value={qty}
                   onChange={(e) => setQty(Math.max(1, Number(e.target.value)))}
-                  className="w-20 border rounded p-2 text-center"
+                  className="p-qty"
                   aria-label="Quantity"
                 />
 
                 <button
                   onClick={handleAddToCart}
                   disabled={adding || product.stock === 0}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 disabled:opacity-50"
+                  className={`p-btn p-btn-primary`}
                 >
                   {adding ? 'Adding...' : 'Add to cart'}
                 </button>
@@ -262,18 +229,16 @@ export default function ProductPage({ initialProduct = null }) {
                 <button
                   title="Add to wishlist"
                   aria-label="Add to wishlist"
-                  className="px-3 py-2 border rounded text-gray-700 bg-white"
+                  className="p-btn p-btn-ghost"
                 >
                   ♥
                 </button>
               </div>
             </div>
 
-            {message && <p className="mt-2 text-sm text-green-700">{message}</p>}
+            {message && <p className="p-message">{message}</p>}
 
-            <hr className="my-6" />
-
-            <div className="prose max-w-none text-gray-800">
+            <div className="p-prose">
               <h3>Product details</h3>
               <p className="whitespace-pre-line">{product.description}</p>
               <ul>
@@ -284,29 +249,32 @@ export default function ProductPage({ initialProduct = null }) {
               </ul>
             </div>
 
-            <div className="mt-6 flex items-center gap-4">
-              <Image src={product.seller.avatar} alt={`${product.seller.name} avatar`} width={64} height={64} className="rounded-full" />
+            <div className="p-seller">
+              <div className="avatar" style={{ position: 'relative', width: 64, height: 64 }}>
+                <Image src={product.seller.avatar} alt={`${product.seller.name} avatar`} fill style={{ objectFit: 'cover', borderRadius: '999px' }} />
+              </div>
+
               <div>
-                <div className="font-semibold">{product.seller.name}</div>
-                <div className="text-sm text-gray-600">{product.seller.bio}</div>
-                <a href={`/sellers/${product.seller.id}`} className="text-indigo-600 text-sm mt-1 inline-block">View seller profile</a>
+                <div style={{ fontWeight: 600 }}>{product.seller.name}</div>
+                <div style={{ color: '#6b7280', fontSize: 14 }}>{product.seller.bio}</div>
+                <a href={`/sellers/${product.seller.id}`} style={{ color: '#4f46e5', fontSize: 14, marginTop: 6, display: 'inline-block' }}>View seller profile</a>
               </div>
             </div>
           </section>
         </div>
 
-        {/* Reviews & Add review */}
-        <section className="p-6 border-t">
-          <h2 className="text-xl font-semibold">Reviews</h2>
+        {/* Reviews */}
+        <section className="p-reviews">
+          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>Reviews</h2>
 
-          <form onSubmit={submitReview} className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <label className="sr-only">Write a review</label>
-            <div className="md:col-span-2">
+          <form onSubmit={submitReview} className="p-review-form" style={{ marginTop: 12 }}>
+            <div>
               <select
                 value={newReview.rating}
                 onChange={(e) => setNewReview((s) => ({ ...s, rating: Number(e.target.value) }))}
                 aria-label="Rating"
-                className="border rounded p-2 mb-2"
+                className="p-select"
+                style={{ marginBottom: 8 }}
               >
                 <option value={5}>5 - Excellent</option>
                 <option value={4}>4 - Good</option>
@@ -320,45 +288,42 @@ export default function ProductPage({ initialProduct = null }) {
                 onChange={(e) => setNewReview((s) => ({ ...s, text: e.target.value }))}
                 rows={4}
                 placeholder="Write your review here..."
-                className="w-full border rounded p-2"
+                className="p-textarea"
                 aria-label="Write your review"
               />
             </div>
 
-            <div className="flex flex-col gap-2">
-              <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded">Submit review</button>
-              <div className="text-sm text-gray-500">Reviews help others discover artisanal makers.</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <button type="submit" className="p-btn p-btn-primary" style={{ background: '#16a34a' }}>Submit review</button>
+              <div style={{ color: '#6b7280', fontSize: 13 }}>Reviews help others discover artisanal makers.</div>
             </div>
           </form>
 
-          <div className="mt-6 space-y-4">
-            {reviews.length === 0 && <div className="text-sm text-gray-600">No reviews yet.</div>}
+          <div style={{ marginTop: 16, display: 'grid', gap: 12 }}>
+            {reviews.length === 0 && <div style={{ color: '#6b7280' }}>No reviews yet.</div>}
             {reviews.map((r) => (
-              <article key={r.id} className="p-4 border rounded-md">
-                <div className="flex items-center justify-between">
-                  <div className="font-semibold">{r.user}</div>
-                  <div className="text-sm text-gray-600">{r.rating} / 5</div>
+              <article key={r.id} className="p-review">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontWeight: 600 }}>{r.user}</div>
+                  <div style={{ color: '#6b7280', fontSize: 13 }}>{r.rating} / 5</div>
                 </div>
-                <p className="mt-2 text-gray-700">{r.text}</p>
+                <p style={{ marginTop: 8, color: '#374151' }}>{r.text}</p>
               </article>
             ))}
           </div>
         </section>
 
-        {/* Related products (simple placeholder) */}
-        <section className="p-6 border-t">
-          <h3 className="font-semibold">Related products</h3>
-          <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {/* Example placeholders; connect to recommendation API for dynamic content */}
-            <div className="bg-gray-50 rounded p-3 text-center">Product A</div>
-            <div className="bg-gray-50 rounded p-3 text-center">Product B</div>
-            <div className="bg-gray-50 rounded p-3 text-center">Product C</div>
-            <div className="bg-gray-50 rounded p-3 text-center">Product D</div>
+        {/* Related */}
+        <section className="p-related">
+          <h3 style={{ margin: 0, fontWeight: 600 }}>Related products</h3>
+          <div className="p-related-grid" style={{ marginTop: 12 }}>
+            <div className="p-related-item">Product A</div>
+            <div className="p-related-item">Product B</div>
+            <div className="p-related-item">Product C</div>
+            <div className="p-related-item">Product D</div>
           </div>
         </section>
-
       </main>
-
     </div>
   )
 }
