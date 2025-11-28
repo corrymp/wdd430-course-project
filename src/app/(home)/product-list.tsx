@@ -1,11 +1,11 @@
-import type { Product, Seller } from "@/app/lib/types";
-import { mockSeller } from "@/app/lib/mock-data";
+import type { Product, Shop } from "@/app/lib/types";
+import { mockShop } from "@/app/lib/mock-data";
 import Gallery from "@/app/ui/gallery";
 import TagList from "@/app/ui/tag-list";
 import Image from "next/image";
 
 function ProductListItem({ product }: { product: Product; }) {
-  const seller: Seller = mockSeller(product.sellerId);
+  const seller: Shop = mockShop(product.sellerId);
   return (
     <>
       <Image
