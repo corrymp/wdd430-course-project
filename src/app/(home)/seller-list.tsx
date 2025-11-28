@@ -1,8 +1,8 @@
-import type { Seller } from "@/app/lib/types";
+import type { Shop } from "@/app/lib/types";
 import Gallery from "@/app/ui/gallery";
 import Image from "next/image";
 
-function SellerItem({ seller }: { seller: Seller; }) {
+function SellerItem({ seller }: { seller: Shop; }) {
   return (
     <>
       <Image
@@ -20,7 +20,7 @@ function SellerItem({ seller }: { seller: Seller; }) {
   );
 }
 
-export default function SellerList({sellers}: {sellers: Seller[]}) {
+export default function SellerList({ sellers }: { sellers: Shop[]; }) {
   return (
     <Gallery
       classes="home-seller-gallery"

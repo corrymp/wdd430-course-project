@@ -1,4 +1,4 @@
-import { Id, Product, Seller, Tag, User } from "./types";
+import { Id, Url, Product, Shop, Tag, User, Image, Review, Order, OrderItem } from "./types";
 import React from "react";
 const { random, abs, floor, ceil } = Math;
 
@@ -313,6 +313,22 @@ const totallyRealCityNames: string[] = [
   'Wherever'
 ];
 
+const mockProductImages: string[] = [
+  '/images/ceramic-dishes.jpeg',
+  "/images/cuckoo-clock.jpeg",
+  '/images/faces.jpeg',
+  '/images/fruit-basket.jpeg',
+  "/images/necklace.jpeg",
+  '/images/papercraft.jpeg',
+  '/images/pot.jpeg',
+  '/images/sandals.jpeg',
+  '/images/terracotta-cups.jpeg',
+  '/images/windchimes.jpeg',
+  '/images/wooden-bracelet.jpeg',
+  '/images/wooden-couple.jpeg',
+  '/images/woven-basket.jpeg'
+];
+
 //#endregion
 
 //#region utils
@@ -413,10 +429,27 @@ export function PlaceholderImage({ width, height, bg, lines }: { width: number; 
 
 //#region ids
 const newIdGenerator = (firstId?: number) => (g => () => g.next().value)(function*(i) { while (true) yield i++; }(firstId ?? 42));
-const tagId = newIdGenerator();
-const sellerId = newIdGenerator();
-const userId = newIdGenerator();
-const productId = newIdGenerator();
+
+const newId = (firstId?: number, existing?: Array<number>): { next: () => number; any: () => number; } => {
+  const ids: Array<number> = existing ?? [];
+  const getNext = newIdGenerator(firstId);
+  return {
+    next() {
+      const id = getNext();
+      ids.push(id);
+      return id;
+    },
+    any: () => randomItemFromList(ids)
+  };
+};
+
+const imageId = newId();
+const userId = newId();
+const shopId = newId();
+const productId = newId();
+const reviewId = newId();
+const orderId = newId();
+const tagId = newId();
 //#endregion
 
 //#region random names and such
@@ -453,33 +486,78 @@ const randomPlace = (): string => `${randomTotallyRealCity()}, ${randomState()}`
 //#endregion
 
 //#region singular
-export const mockTag = (id?: Id): Tag => ({ id: id ?? tagId(), title: randomTagTitle() });
 
-export const mockSeller = (id?: Id): Seller => ({
-  id: id ?? sellerId(),
-  name: randomFullName(),
-  location: randomPlace(),
-  picture: placeholderImage(200, 200),
-  joinDate: randomDate(),
-  shopName: randomShopName(),
-  shopBanner: placeholderImage(200, 150)
+export const mockImage = (id?: Id): Image => ({
+  id: id ?? imageId.next(),
+  path: randomItemFromList(mockProductImages),
+  width: 100,
+  height: 100,
+  alt_text: 'Placeholder'
 });
 
-export const mockUser = (id?: Id): User => ({ id: id ?? userId(), name: randomFullName(), picture: 'example.com/pfp.png' });
+export const mockUser = (id?: Id): User => ({
+  id: id ?? userId.next(),
+  name: randomFullName(),
+  join_date: randomDate(),
+  pfp: 'example.com/pfp.png'
+});
+
+export const mockShop = (id?: Id, ownerId?: Id): Shop => ({
+  id: id ?? shopId.next(),
+  manager: ownerId ?? userId.any(),
+  location: randomPlace(),
+  name: randomShopName(),
+  banner: placeholderImage(200, 150)
+});
 
 export const mockProduct = (id?: Id): Product => ({
-  id: id ?? productId(),
-  sellerId: random(),
+  id: id ?? productId.next(),
+  shop: shopId.any(),
   name: randomProductName(),
   price: randomInRange(10, 100),
   tags: Array.from({ length: randomInRange(1, 5) }, mockTag),
-  images: Array.from({ length: randomInRange(1, 4) }, () => placeholderImage(150, 150))
+  images: Array.from({ length: randomInRange(1, 4) }, mockImage),
+  listed_at: randomDate()
 });
+
+export const mockReview = (id?: Id): Review => ({
+  id: id ?? reviewId.next(),
+  reviewer: userId.any(),
+  product: productId.any(),
+  title: 'mock review',
+  content: 'mock review',
+  rating: 3,
+  images: Array.from({ length: randomInRange(0, 2) }, mockImage)
+});
+
+export const mockTag = (id?: Id): Tag => ({
+  id: id ?? tagId.next(),
+  title: randomTagTitle()
+});
+
+export const mockOrder = (id?: Id): Order => {
+  const items = Array.from({ length: randomInRange(1, 3) }, () => mockOrderItem());
+  const amount = items.reduce((ac, cur) => ac + cur.item.price * cur.quantity, 0);
+  return {
+    id: id ?? orderId.next(),
+    buyer: userId.any(),
+    amount,
+    payed_at: randomItemFromList([undefined, randomDate()]),
+    items
+  };
+};
+
+export const mockOrderItem = (id?: Id, item?: Product): OrderItem => ({
+  order: id ?? orderId.any(),
+  item: item ?? mockProduct(),
+  quantity: randomInRange(1, 3)
+});
+
 //#endregion
 
 //#region plural
 export const mockTagsList = (count?: number, ids?: Id[]): Tag[] => makeList(mockTag, count, ids);
-export const mockSellerList = (count?: number, ids?: Id[]): Seller[] => makeList(mockSeller, count, ids);
+export const mockSellerList = (count?: number, ids?: Id[]): Shop[] => makeList(mockShop, count, ids);
 export const mockUsersList = (count?: number, ids?: Id[]): User[] => makeList(mockUser, count, ids);
 export const mockProductsList = (count?: number, ids?: Id[]): Product[] => makeList(mockProduct, count, ids);
 //#endregion
