@@ -2,35 +2,32 @@ import Image from 'next/image';
 import ProductCard from './components/ProductCard';
 import styles from './page.module.css';
 
-type Product = {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-};
+import { Shop, User, Product } from '@/app/lib/types';
+import { fetchProductsOfShopById, fetchShopById } from '../lib/data';
 
-type Seller = {
-  name: string;
-  products: Product[];
-};
+// const shop: Shop = {
+//   name: 'Nico Artisan',
+//   products: [
+//     { id: 1, name: 'Ceramic Jar', price: 350, image: '/images/products/jar.jpg' },
+//     { id: 2, name: 'Wooden Spoon', price: 120, image: '/images/products/spoon.jpg' },
+//     { id: 3, name: 'Woven Basket', price: 500, image: '/images/products/woven-basket.jpg' },
+//   ],
+// };
+const id = 0;
+export default async function SellerProfile() {
+  const shop = await fetchShopById(id);
+  const products = await fetchProductsOfShopById(id);
 
-const seller: Seller = {
-  name: 'Nico Artisan',
-  products: [
-    { id: 1, name: 'Ceramic Jar', price: 350, image: '/images/products/jar.jpg' },
-    { id: 2, name: 'Wooden Spoon', price: 120, image: '/images/products/spoon.jpg' },
-    { id: 3, name: 'Woven Basket', price: 500, image: '/images/products/woven-basket.jpg' },
-  ],
-};
 
-export default function SellerProfile() {
+
+
   return (
     <div className={styles.container}>
       {/* Seller Info */}
       <section className={styles.sellerInfo}>
         <Image src="/images/sellers/avatar.svg" alt="Seller Avatar" className={styles.sellerAvatar} width={120} height={120} />
         <div>
-          <h1>{seller.name}</h1>
+          <h1>{shop.name}</h1>
           <p>Artisan specializing in handmade crafts.</p>
         </div>
       </section>
@@ -39,7 +36,7 @@ export default function SellerProfile() {
       <section className={styles.productList}>
         <h2>Products</h2>
         <div className={styles.grid}>
-          {seller.products.map((product) => (
+          {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

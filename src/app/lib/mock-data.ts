@@ -1,4 +1,19 @@
-import { Id, Url, Product, Shop, Tag, User, Image, Review, Order, OrderItem } from "./types";
+import {
+  Id, 
+  Url, 
+  Image, ImageRow, ImageRows,  
+  Tag, TagRow, TagRows, 
+  User, UserRow, UserRows, 
+  Shop, ShopRow, ShopRows, 
+  Product, ProductRow, ProductRows, 
+  Review, ReviewRow, ReviewRows, 
+  Order, OrderRow, OrderRows, 
+  OrderItem, ItemInOrderRow, ItemInOrderRows, 
+  ReviewImageRow, ReviewImageRows, 
+  ProductTagRow, ProductTagRows, 
+  ProductImageRow,  ProductImageRows
+} from "./types";
+
 import React from "react";
 const { random, abs, floor, ceil } = Math;
 
@@ -329,9 +344,70 @@ const mockProductImages: string[] = [
   '/images/woven-basket.jpeg'
 ];
 
+const fillColors: string[] = [
+  '#f77',
+  '#ff7',
+  '#7f7',
+  '#7ff',
+  '#77f',
+  '#f7f',
+  '#077',
+  '#007',
+  '#707',
+  '#700',
+  '#070'
+];
+const strokeColors: string[] = [
+  '#a77',
+  '#aa7',
+  '#7a7',
+  '#7aa',
+  '#77a',
+  '#a7a',
+  '#577',
+  '#557',
+  '#757',
+  '#755',
+  '#575'
+];
+
+const reviewText: string[] = `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Et nihil error quas, vel consectetur libero. Sunt, vero, alias reiciendis fugit corporis sint ullam quisquam expedita cumque repellendus doloribus iure repellat.
+Tempora amet modi maiores inventore illum nesciunt sed, rerum aliquam reiciendis fuga nisi officiis enim asperiores ratione eveniet, quasi nobis cum. Doloremque labore vitae adipisci asperiores autem, voluptatum reiciendis assumenda!
+Deleniti, eligendi perferendis in dolorum laudantium quisquam eum quod inventore soluta. Totam eveniet veniam corrupti fuga nostrum, ipsam rem molestiae facilis! Dicta, mollitia tenetur voluptatum quisquam ipsam velit natus doloribus?
+Eum tenetur aliquam eius illo sequi labore praesentium voluptatibus numquam obcaecati similique, sapiente assumenda quia neque minus asperiores impedit in laudantium cumque optio ea doloribus. Reiciendis, eveniet rerum? Voluptates, consectetur!
+Harum ipsum quo mollitia qui commodi dignissimos, aliquam reiciendis et cumque sed quisquam ducimus nisi sunt consequuntur officiis sequi optio vero quod deserunt veniam impedit? Laborum odit vero distinctio nostrum.
+Id, neque incidunt nisi quam nobis voluptas obcaecati blanditiis laudantium nemo ad sapiente enim numquam labore quidem quibusdam possimus sint eveniet sunt! Blanditiis commodi veritatis iste eveniet voluptatibus ratione aspernatur?
+Earum consectetur eum, doloribus veniam, fugiat eius, assumenda cupiditate autem corrupti odio voluptas. Impedit alias autem temporibus, nulla recusandae rerum maxime. Fugiat quasi rem nam enim, aperiam hic veniam! Nemo.
+Fugiat magni facere perspiciatis nisi dolorem repellendus aliquam aut nostrum assumenda natus autem voluptas officiis, quis praesentium laboriosam reiciendis ut. Numquam ea blanditiis fugit assumenda. Tempore eum ducimus quia aspernatur!
+Soluta quos necessitatibus temporibus itaque dolore! Doloremque tempora voluptate maxime sed nam recusandae, neque mollitia distinctio rerum asperiores ea inventore consequatur earum voluptatibus dolores repellendus, ex soluta expedita eligendi tempore.
+Sed sint eaque odio laboriosam eos! Reprehenderit error nemo voluptas exercitationem ipsum natus quaerat nihil similique voluptatem minima consequuntur beatae voluptate tempore alias voluptates quod possimus necessitatibus, perferendis veniam sit?`.split('\n');
+
+
 //#endregion
 
 //#region utils
+
+const mockCache = {
+  image: new Map,
+  item_in_order: new Map,
+  order: new Map,
+  product: new Map,
+  product_has_tag: new Map,
+  product_image: new Map,
+  review: new Map,
+  review_image: new Map,
+  shop: new Map,
+  tag: new Map,
+  user: new Map
+};
+
+function checkCache(id: Id|string, path: 'image' | 'item_in_order' | 'order' | 'product' | 'product_has_tag' | 'product_image' | 'review' | 'review_image' | 'shop' | 'tag' | 'user', ifnot: Function) {
+  if (mockCache[path].has(id)) return mockCache[path].get(id);
+  mockCache[path].set(id, { id });
+  const item = ifnot();
+  mockCache[path].set(id, item);
+  return item;
+}
 
 /**
  * @param {Function} fn - returns an item for the list 
@@ -483,81 +559,98 @@ const randomState = (): string => randomItemFromList(USStates);
 const randomTotallyRealCity = (): string => randomItemFromList(totallyRealCityNames);
 const randomPlace = (): string => `${randomTotallyRealCity()}, ${randomState()}`;
 
+const randomPlaceholderImage = (width: number, height: number): Image => {
+  const img = {
+    id: imageId.next(),
+    width,
+    height,
+    path: placeholderImage(width, height, randomItemFromList(fillColors), randomItemFromList(strokeColors)),
+    alt_text: 'Placeholder'
+  };
+  mockCache.image.set(img.id, img);
+  return img;
+};
 //#endregion
 
 //#region singular
 
-export const mockImage = (id?: Id): Image => ({
-  id: id ?? imageId.next(),
-  path: randomItemFromList(mockProductImages),
-  width: 100,
-  height: 100,
-  alt_text: 'Placeholder'
-});
+export const mockImage = (id: Id = imageId.next()): ImageRow => checkCache(id, 'image', () => ({id,path: randomItemFromList(mockProductImages),width: 100,height: 100,alt_text: 'Placeholder'}));
 
-export const mockUser = (id?: Id): User => ({
-  id: id ?? userId.next(),
-  name: randomFullName(),
-  join_date: randomDate(),
-  pfp: 'example.com/pfp.png'
-});
+export const mockUser = (id: Id = userId.next()): UserRow => checkCache(id, 'user', () => ({id,name: randomFullName(),join_date: randomDate(),pfp: randomPlaceholderImage(128, 128).id}));
 
-export const mockShop = (id?: Id, ownerId?: Id): Shop => ({
-  id: id ?? shopId.next(),
-  manager: ownerId ?? userId.any(),
-  location: randomPlace(),
-  name: randomShopName(),
-  banner: placeholderImage(200, 150)
-});
+export const mockShop = (id: Id = shopId.next(), ownerId?: Id): ShopRow => checkCache(id, 'shop', () => ({id,manager: mockUser(ownerId).id,location: randomPlace(),name: randomShopName(),banner: randomPlaceholderImage(200, 150).id}));
 
-export const mockProduct = (id?: Id): Product => ({
-  id: id ?? productId.next(),
-  shop: shopId.any(),
-  name: randomProductName(),
-  price: randomInRange(10, 100),
-  tags: Array.from({ length: randomInRange(1, 5) }, mockTag),
-  images: Array.from({ length: randomInRange(1, 4) }, mockImage),
-  listed_at: randomDate()
-});
-
-export const mockReview = (id?: Id): Review => ({
-  id: id ?? reviewId.next(),
-  reviewer: userId.any(),
-  product: productId.any(),
-  title: 'mock review',
-  content: 'mock review',
-  rating: 3,
-  images: Array.from({ length: randomInRange(0, 2) }, mockImage)
-});
-
-export const mockTag = (id?: Id): Tag => ({
-  id: id ?? tagId.next(),
-  title: randomTagTitle()
-});
-
-export const mockOrder = (id?: Id): Order => {
-  const items = Array.from({ length: randomInRange(1, 3) }, () => mockOrderItem());
-  const amount = items.reduce((ac, cur) => ac + cur.item.price * cur.quantity, 0);
+export const mockProduct = (id: Id = productId.next()): ProductRow => checkCache(id, 'product', () => {
+  Array.from({ length: randomInRange(1, 5) }, () => mockProductTag(id, tagId.any()));
+  Array.from({ length: randomInRange(1, 4) }, () => mockProductImage(id, mockImage().id));
   return {
-    id: id ?? orderId.next(),
-    buyer: userId.any(),
-    amount,
-    payed_at: randomItemFromList([undefined, randomDate()]),
-    items
+    id,
+    shop: mockShop(shopId.any()).id,
+    name: randomProductName(),
+    price: randomInRange(10, 100) - .01,
+    listed_at: randomDate()
   };
-};
-
-export const mockOrderItem = (id?: Id, item?: Product): OrderItem => ({
-  order: id ?? orderId.any(),
-  item: item ?? mockProduct(),
-  quantity: randomInRange(1, 3)
 });
+
+export const mockReview = (id: Id = reviewId.next()): ReviewRow => checkCache(id, 'review', () => {
+  Array.from({ length: randomInRange(0, 2) }, () => mockReviewImage(id, mockImage().id));
+  const revText = Array.from({ length: randomInRange(1, 3) }, () => randomItemFromList(reviewText)).join(' ');
+  return {
+    id,
+    reviewer: mockUser(userId.any()).id,
+    product: mockProduct(productId.any()).id,
+    title: revText.split(' ').slice(0, randomInRange(2, 5)).join(' '),
+    content: revText,
+    rating: randomInRange(1, 5)
+  };
+});
+
+export const mockTag = (id: Id = tagId.next()): TagRow => checkCache(id, 'tag', () => ({id,title: randomTagTitle()}));
+
+export const mockOrder = (id: Id = orderId.next()): OrderRow => checkCache(id, 'order', () => {
+  const items = Array.from({ length: randomInRange(1, 3) }, () => mockOrderItem(id));
+  const amount = parseFloat(items.reduce((ac, cur) => ac + mockProduct(cur.product).price * cur.quantity, 0).toFixed(2));
+  return {
+    id,
+    buyer: mockUser(userId.any()).id,
+    payed_at: randomItemFromList([null, randomDate(), randomDate(), randomDate()]),
+    amount
+  };
+});
+
+export const mockOrderItem = (id: Id = orderId.any(), item?: Id): ItemInOrderRow => checkCache(id, 'item_in_order', () => ({
+  order: id,
+  item: mockProduct(item).id,
+  quantity: randomInRange(1, 3)
+}));
+
+export const mockReviewImage = (rev: Id = reviewId.next(), img?: Id): ReviewImageRow => checkCache(`${rev}|${img}`, 'review_image', () => ({ 
+  review: mockReview(rev).id, 
+  image: mockImage(img).id 
+}));
+
+export const mockProductTag = (prod: Id = productId.any(), tag: Id = tagId.any()): ProductTagRow => checkCache(`${prod}|${tag}`, 'product_has_tag', () => ({ 
+  product: mockProduct(prod).id, 
+  tag: mockTag(tag).id 
+}));
+
+export const mockProductImage = (prod: Id = productId.any(), img: Id = imageId.any()): ProductImageRow => checkCache(`${prod}|${img}`, 'product_image', () => ({ 
+  product: mockProduct(prod).id, 
+  image: mockImage(img).id 
+}));
 
 //#endregion
 
 //#region plural
-export const mockTagsList = (count?: number, ids?: Id[]): Tag[] => makeList(mockTag, count, ids);
-export const mockSellerList = (count?: number, ids?: Id[]): Shop[] => makeList(mockShop, count, ids);
-export const mockUsersList = (count?: number, ids?: Id[]): User[] => makeList(mockUser, count, ids);
-export const mockProductsList = (count?: number, ids?: Id[]): Product[] => makeList(mockProduct, count, ids);
+export const mockImageList = (count?: number, ids?: Id[]): ImageRows => makeList(mockImage, count, ids);
+export const mockUsersList = (count?: number, ids?: Id[]): UserRows => makeList(mockUser, count, ids);
+export const mockShopsList = (count?: number, ids?: Id[]): ShopRows => makeList(mockShop, count, ids);
+export const mockProductsList = (count?: number, ids?: Id[]): ProductRows => makeList(mockProduct, count, ids);
+export const mockReviewsList = (count?: number, ids?: Id[]): ReviewRows => makeList(mockReview, count, ids);
+export const mockReviewImagesList = (count?: number, ids?: Id[]): ReviewImageRows => makeList(mockReviewImage, count, ids);
+export const mockTagsList = (count?: number, ids?: Id[]): TagRows => makeList(mockTag, count, ids);
+export const mockOrdersList = (count?: number, ids?: Id[]): OrderRows => makeList(mockOrder, count, ids);
+export const mockOrderItemsList = (count?: number, ids?: Id[]): ItemInOrderRows => makeList(mockOrderItem, count, ids);
+export const mockProductTagsList = (count?: number, ids?: Id[]): ProductTagRows => makeList(mockProductTag, count, ids);
+export const mockProductImagesList = (count?: number, ids?: Id[]): ProductImageRows => makeList(mockProductImage, count, ids);
 //#endregion

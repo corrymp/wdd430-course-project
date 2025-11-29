@@ -2,18 +2,17 @@
 import styles from "@/app/page.module.css";
 import '@/app/(home)/home.css';
 
-// types and mock data
+// types and data
 import { Product, Shop } from "@/app/lib/types";
-import { mockSellerList } from "@/app/lib/mock-data";
-import { mockProductsList } from "@/app/lib/mock-data";
+import { fetchShops, fetchProducts } from "@/app/lib/data";
 
 // components
 import SellerList from "@/app/(home)/seller-list";
 import ProductList from "@/app/(home)/product-list";
 
-export default function Home() {
-  const products: Product[] = mockProductsList();
-  const sellers: Shop[] = mockSellerList();
+export default async function Home() {
+  const products: Product[] = await fetchProducts();
+  const sellers: Shop[] = await fetchShops();
   return (
     <div className={`${styles.page} home`}>
       <main className={styles.main}>

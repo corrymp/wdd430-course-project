@@ -1,16 +1,17 @@
 import type { Product, Shop } from "@/app/lib/types";
-import { mockShop } from "@/app/lib/mock-data";
 import Gallery from "@/app/ui/gallery";
 import TagList from "@/app/ui/tag-list";
 import Image from "next/image";
+import { mockImage } from "@/app/lib/mock-data";
 
-function ProductListItem({ product }: { product: Product; }) {
-  const seller: Shop = mockShop(product.sellerId);
+async function ProductListItem({ product }: { product: Product; }) {
+  const shop: Shop = product.shop;
+  const image = product.images[0] ?? mockImage();
   return (
     <>
       <Image
         className="home-product-image"
-        src={product.images[0]}
+        src={image.path}
         alt={`${product.name}`}
         width={200}
         height={200}
@@ -19,7 +20,7 @@ function ProductListItem({ product }: { product: Product; }) {
         {product.name}
         <i>${product.price}</i>
       </p>
-      <p className="home-product-shop">from <i>{seller.shopName}</i></p>
+      <p className="home-product-shop">from <i>{shop.name}</i></p>
       <TagList tags={product.tags} limit={2} />
     </>
   );

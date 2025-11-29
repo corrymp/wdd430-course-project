@@ -14,24 +14,24 @@ export interface Image {
 export interface User {
   id: Id;
   name: string;
-  pfp: Url;
+  pfp: Image;
   join_date: Date;
 };
 
 export interface Shop {
   id: Id;
-  manager: Id;
+  manager: User;
   name: string;
   location: string;
-  banner: Url;
+  banner: Image;
 };
 
 export interface Product {
   id: Id;
-  shop: Id;
+  shop: Shop;
   name: string;
   price: number;
-  tags: Tag[];
+  tags: Array<Tag>;
   images: Array<Image>;
   listed_at: Date;
 };
@@ -53,15 +53,16 @@ export interface Tag {
 
 export interface Order {
   id: Id;
-  buyer: Id;
+  seller: Shop;
+  buyer: User;
   items: Array<OrderItem>;
   amount: number;
-  payed_at?: Date;
+  payed_at: Date|null;
 };
 
 export interface OrderItem {
   order: Id;
-  item: Product;
+  product: Product;
   quantity: number;
 }
 //#endregion
@@ -156,9 +157,9 @@ export type OrderRows = Array<OrderRow>;
 export type TagRows = Array<TagRow>;
 
 export type ProductTagRows = Array<ProductTagRow>;
-export type ProductImageRows = Array<ProductRow>;
+export type ProductImageRows = Array<ProductImageRow>;
 export type ItemInOrderRows = Array<ItemInOrderRow>;
-export type ReviewImageRows = Array<ReviewRow>;
+export type ReviewImageRows = Array<ReviewImageRow>;
 //#endregion
 //#endregion
 

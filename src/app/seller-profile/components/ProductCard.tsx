@@ -1,22 +1,12 @@
 import Image from 'next/image';
+import { Product } from '@/app/lib/types';
 
-type Product = {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-};
-
-type Props = {
-  product: Product;
-};
-
-export default function ProductCard({ product }: Props) {
+export default function ProductCard({ product }: {product: Product}) {
   return (
     <div className="product-card">
       <div className="image-wrap" style={{ width: '100%', height: 180, overflow: 'hidden', backgroundColor: '#f5f0e8' }}>
         <Image
-          src={product.image}
+          src={product.images[0].path}
           alt={product.name}
           width={800}
           height={180}

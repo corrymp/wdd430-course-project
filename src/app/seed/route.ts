@@ -1,10 +1,6 @@
-//import bcrypt from 'bcrypt';
 import postgres from 'postgres';
-
 import placeholderData from '@/app/seed/placeholder-data';
-
 const {image, item_in_order, order, product, product_has_tag, product_image, review, review_image, shop, tag, user} = placeholderData;
-
 const sql = postgres(process.env.POSTGRESS_URL!, { ssl: 'require' });
 
 async function seedImage() {
@@ -74,8 +70,8 @@ async function seedOrder() {
       "payed_at" date
     );`;
   const insertionResult = await Promise.all(order.map(item => sql`
-    INSERT INTO "order" (id, buyer, payed_at, amount)
-    VALUES (${item.id}, ${item.buyer}, ${item.payed_at}, ${item.amount})
+    INSERT INTO "order" (id, buyer, seller, payed_at, amount)
+    VALUES (${item.id}, ${item.buyer}, ${item.seller}, ${item.payed_at}, ${item.amount})
     ON CONFLICT(id) DO NOTHING;`));
   return insertionResult;
 }
@@ -106,8 +102,8 @@ CREATE TABLE IF NOT EXISTS "review" (
   "posted_at" date NOT NULL
 );`;
   const insertionResult = await Promise.all(review.map(item => sql`
-    INSERT INTO "review" ("id", "reviewer", "product", "title", "content", "rating")
-    VALUES (${item.id}, ${item.reviewer}, ${item.product}, ${item.title}, ${item.content}, ${item.rating})
+    INSERT INTO "review" ("id", "reviewer", "product", "title", "content", "rating", "posted_at")
+    VALUES (${item.id}, ${item.reviewer}, ${item.product}, ${item.title}, ${item.content}, ${item.rating}, ${item.posted_at})
     ON CONFLICT(id) DO NOTHING;`));
   return insertionResult;
 }
@@ -133,9 +129,9 @@ async function seedProductOrder() {
       PRIMARY KEY ("product", "order")
     );`;
   const insertionResult = await Promise.all(item_in_order.map(item => sql`
-    INSERT INTO "item_in_order" ("order", item, quantity)
-    VALUES (${item.order}, ${item.item}, ${item.quantity})
-    ON CONFLICT("order", item) DO NOTHING;`));
+    INSERT INTO "item_in_order" ("order", product, quantity)
+    VALUES (${item.order}, ${item.product}, ${item.quantity})
+    ON CONFLICT("order", "product") DO NOTHING;`));
   return insertionResult;
 }
 async function seedReviewImage() {
@@ -166,23 +162,26 @@ async function seedProductImage() {
 }
 
 export async function GET() {
+  if(process.env.NODE_ENV === 'production' || process.env.NODE_ENV !== 'development')
+    return Response.json({message: 'Seeding the database may only be done in a sevelopment environment'});
+
   try {
-    const result = await sql.begin(sql => [
+    await sql.begin(sql => [
       seedImage(),
       seedUser(),
       seedShop(),
       seedTag(),
       seedProduct(),
+      seedReview(),
+      seedOrder(),
       seedProductTag(),
       seedProductImage(),
-      seedReview(),
       seedReviewImage(),
-      seedOrder(),
       seedProductOrder()
     ]);
-    return Response.json({message: 'Database seeded', result});
+    return Response.json({message: 'Database seeded'});
   } catch (e) {
     console.log(e);
-    return Response.json({error: e}, {status: 500});
+    return Response.json({message: 'Database seeding failed. It can take a few tries.', error: e}, {status: 500});
   }
 }

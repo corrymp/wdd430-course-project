@@ -1,15 +1,14 @@
-DROP TABLE IF EXISTS product_image;
-DROP TABLE IF EXISTS item_in_order;
+DROP TABLE IF EXISTS "product_image";
+DROP TABLE IF EXISTS "review_image";
+DROP TABLE IF EXISTS "item_in_order";
+DROP TABLE IF EXISTS "product_has_tag";
 DROP TABLE IF EXISTS "order";
-DROP TABLE IF EXISTS review_image;
-DROP TABLE IF EXISTS review;
-DROP TABLE IF EXISTS product_has_tag;
-DROP TABLE IF EXISTS product;
-DROP TABLE IF EXISTS tag;
-DROP TABLE IF EXISTS shop;
+DROP TABLE IF EXISTS "review";
+DROP TABLE IF EXISTS "product";
+DROP TABLE IF EXISTS "shop";
 DROP TABLE IF EXISTS "user";
-DROP TABLE IF EXISTS image;
-
+DROP TABLE IF EXISTS "tag";
+DROP TABLE IF EXISTS "image";
 
 -- image table: id, path, alt_text, width, height
 CREATE TABLE IF NOT EXISTS "image" (
