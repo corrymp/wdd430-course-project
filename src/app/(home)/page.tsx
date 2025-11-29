@@ -1,24 +1,27 @@
-// styles
 import styles from "@/app/page.module.css";
 import '@/app/(home)/home.css';
 
-// types and mock data
+// data
 import { Product, Seller } from "@/app/lib/types";
-import { mockSellerList } from "@/app/lib/mock-data";
-import { mockProductsList } from "@/app/lib/mock-data";
+import { mockSellerList, mockProductsList } from "@/app/lib/mock-data";
 
 // components
-import SellerList from "@/app/(home)/seller-list";
-import ProductList from "@/app/(home)/product-list";
+import Hero from "./hero";
+import FeaturedProducts from "./FeaturedProducts";
+import FeaturedSellers from "./FeaturedSellers";
+import Categories from "./Categories";
 
 export default function Home() {
   const products: Product[] = mockProductsList();
   const sellers: Seller[] = mockSellerList();
+
   return (
-    <div className={ `${styles.page} home` }>
-      <main className={styles.main}>
-        <ProductList products={products} />
-        <SellerList sellers={sellers} />
+    <div className={`home-page`}>
+      <Hero />
+      <main className={``}>
+        <FeaturedProducts products={products} />
+        <FeaturedSellers sellers={sellers} />
+        <Categories />
       </main>
     </div>
   );

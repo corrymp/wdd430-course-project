@@ -1,61 +1,335 @@
-.home {
-  main {
-    margin: 2em;
-    display: grid;
-
-    .gallery {
-      img {}
-    }
-  }
+/* * {
+  outline: red solid 1px;
+} */
+.home-page {
+  background-color: var(--foreground);
+}
+/* ================= Hero Section ================= */
+.home-hero {
+  position: relative;
+  height: 100dvh;
+  width: 100vw;
+  background-image: url("/images/hero-bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
 }
 
+.home-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.home-hero-content {
+  width: 100%;
+  position: relative;
+  padding: 3em;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5em;
+  color: #fff;
+}
+
+.home-hero-content h1 {
+  font-size: 4rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -1px;
+}
+
+.home-hero-content p {
+  font-size: 1.5rem;
+  line-height: 1.6;
+  font-weight: 300;
+  max-width: 500px;
+  opacity: 0.9;
+}
+
+.home-hero-ctas {
+  display: flex;
+  gap: 1em;
+  margin-top: 0.5em;
+}
+
+.home-hero-ctas a {
+  padding: 1em 1.5em;
+  border-radius: 999px;
+  font-size: 1rem;
+  transition: 0.2s ease;
+}
+
+.hero-primary {
+  background: #fff;
+  color: #000;
+}
+
+.hero-primary:hover {
+  transform: translateY(-2px);
+}
+
+.hero-secondary {
+  border: 1px solid #fff;
+  color: #fff;
+  backdrop-filter: blur(6px);
+}
+
+/* ================= Featured Products Section ================= */
+.featured-section {
+  padding: 2em;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5em;
+}
+
+.featured-section h2 {
+  font-size: 2.5rem;
+  font-weight: 300;
+  color: var(--foreground);
+}
+
+/* ================= Product List Item (Card) ================= */
+
+.product-list-item-card {
+  display: flex;
+  flex-direction: column;
+  background: #ececec;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+}
+
+
+/* === Image Area === */
+.product-image-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.home-product-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.product-list-item-card:hover .home-product-image {
+  transform: scale(1.05);
+}
+
+.product-read-more {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  padding: 0.5em 1.5em;
+  border-radius: 999px;
+  border: none;
+  background: #000;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+
+  opacity: 0;
+  transform: translateY(5px);
+  transition: 0.3s ease;
+  cursor: pointer;
+}
+
+.product-list-item-card:hover .product-read-more {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.product-read-more:hover {
+  background: #222;
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+  padding: 1.5em;
+}
+
+.product-title-price {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: start;
+}
+
+.home-product-item {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--bg-dark);
+}
+
+.home-product-price {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--bg-dark);
+}
+
+.home-product-shop {
+  font-size: 1.2rem;
+  font-weight: 300;
+  color: #555;
+  margin-bottom: 1em;
+}
+
+.home-section {
+  padding: 3em 2em;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5em;
+}
+
+.home-section h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ================= Featured Sellers ================= */
 .home-seller-gallery {
-  .gallery-item {
-    display: grid;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5em;
+}
 
-    .home-seller-image {}
-
-    .home-seller-shop {}
-
-    .home-seller-name {
-      span {}
-    }
-
-    .home-seller-joined {}
-
-    .home-seller-loc {}
+/* Tablet */
+@media (max-width: 1024px) {
+  .home-seller-gallery {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-.home-product-gallery {
-  .gallery-item {
-    position: relative;
-    display: grid;
-    grid-template-areas:
-      'a a d d d'
-      'e e e e e'
-      'f f f f f'
-    ;
-    gap: 4px;
-
-    .home-product-image {
-      grid-area: a;
-    }
-
-    .home-product-item {
-      grid-area: d;
-
-      i {
-        font-size: .8em;
-      }
-    }
-
-    .home-product-shop {
-      grid-area: e;
-    }
-
-    .tags {
-      grid-area: f;
-    }
+/* Mobile */
+@media (max-width: 640px) {
+  .home-seller-gallery {
+    grid-template-columns: 1fr;
   }
+}
+
+/* Seller cards */
+.home-seller-gallery > * {
+  background: #ececec;
+  cursor: pointer;
+}
+
+.home-seller-image {
+  width: 100%;
+  margin-bottom: 1em;
+  object-fit: cover;
+}
+
+.home-seller-shop {
+  font-size: 1.2rem;
+  font-weight: 500;
+  /* margin-bottom: 0.2em; */
+}
+
+.home-seller-name,
+.home-seller-joined,
+.home-seller-loc {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+
+/* Show More / Hide button */
+.seller-toggle-wrapper {
+  display: none;
+  justify-content: center;
+  margin-top: 1.5em;
+}
+
+.seller-toggle-btn {
+  padding: 0.5em 1.3em;
+  border-radius: 999px;
+  background: var(--bg-dark);
+  color: white;
+  border: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.seller-toggle-btn:hover {
+  background: #222;
+}
+
+/* Show button ONLY on mobile */
+@media (max-width: 640px) {
+  .seller-toggle-wrapper {
+    display: flex;
+  }
+}
+
+/* Category Wrapper */
+.categories-wrapper {
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.categories-wrapper h2 {
+  font-size: 2.5rem;
+  font-weight: 300;
+  color: var(--foreground);
+  text-align: center;
+}
+
+/* Category Card */
+.category-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 0;
+}
+
+/* Circle Image */
+.category-img {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Category Title */
+.cat-name {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Pagination Dots */
+.cat-pagination {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.cat-pagination .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: rgba(0,0,0,0.3);
+  transition: background-color 0.25s ease;
+}
+
+.cat-pagination .dot.active {
+  background-color: var(--accent-color);
 }
