@@ -1,8 +1,9 @@
-// TODO: replace with actual footer
+import Link from "next/link";
+
 export default function Footer() {
   return (
-    <footer>
-      <p>&copy; {new Date().toLocaleDateString(undefined, {year: 'numeric'})} | Handcrafted Haven</p>
+    <footer className="footer">
+      <p>&copy; {new Date().getFullYear()} | Handcrafted Haven</p>
     </footer>
   );
 }
