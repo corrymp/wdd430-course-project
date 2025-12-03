@@ -2,12 +2,12 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import { useState, useEffect, useRef, FormEvent } from 'react'
-import "../productPage/productPage.css" // adjust path if different
+import "../productPage/productPage.css" 
 
 export default function ProductPage({ initialProduct = null }) {
   const mockProduct = {
     id: 'prod-001',
-    title: 'Handwoven Rwandan Sisal Basket',
+    title: 'Handwoven Sisal Basket',
     category: 'Home Decor',
     shortDescription: 'Handwoven sisal basket made with sustainable fibers — perfect for storage and décor.',
     description:
@@ -18,7 +18,9 @@ export default function ProductPage({ initialProduct = null }) {
       '/images/Paper Wallmate Craft Ideas_.jpeg',
       '/images/Uncut polki kundan bridal necklace set with backside meenakari work.jpeg',
       '/images/Wooden Personalised Keyrings.jpeg',
-      '/images/Nordic Style Green Ceramic Dinnerware Set With Gold Inlay High End Porcelain Steak Plate And Bowl.jpeg'
+      '/images/Nordic Style Green Ceramic Dinnerware Set With Gold Inlay High End Porcelain Steak Plate And Bowl.jpeg',
+      '/images/image3.jpeg',
+      '/images/image5.jpeg',
     ],
     dimensions: '30cm x 25cm',
     weight: '500g',
