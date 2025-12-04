@@ -29,6 +29,7 @@ async function SearchItems({ products }: { products: ProductSearchResultProduct[
 }
 
 export default async function Page(props: { searchParams?: Promise<{ query?: string; priceRangeLo?: number; priceRangeHi?: number; page?: string; }>; }) {
+  // TODO: make this a searchable list of sellers/shops instead of products
   const searchParams = await props.searchParams;
   const query = searchParams?.query || '';
   const priceRangeLo = searchParams?.priceRangeLo || 0;

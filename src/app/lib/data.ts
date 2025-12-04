@@ -1,4 +1,4 @@
-'use server'
+'use server';
 import postgres from 'postgres';
 import {
   Id,
@@ -11,12 +11,13 @@ import {
   Product, ProductRows,
   OrderItem, ItemInOrderRows
 } from '@/types/types';
+import { mockImageList } from './mock-data';
 
 const sql = postgres(process.env.POSTGRESS_URL!, { ssl: 'require' });
 
 function dbError(e: Error, type: string, ...rest: Array<unknown>): never {
   console.error(`Database error (${type}): ${e.message}${rest.length > 0 ? `; passed args: < ${rest.join(', ')} >` : ''}`, e);
-  throw new Error(`Failed to fetch ${type}`);
+  throw new Error(`Failed to ${type}`);
 }
 
 //#region image
@@ -25,25 +26,38 @@ export async function fetchImageById(id: Id): Promise<Image> {
     const image = await sql<ImageRows>`SELECT * FROM image WHERE id = ${id};`;
     return image[0];
   } catch (e) {
-    return dbError(e as Error, 'image');
+    return dbError(e as Error, 'fetchImageById', id);
   }
 }
 
 async function fetchImagesOfProduct(productId: Id): Promise<Image[]> {
-  return [...(await sql<ImageRows>`
+  if (productId === undefined) {
+    console.warn('Attempted to fetch images of product with missing ID');
+    return mockImageList();
+  }
+  try {
+    return [...(await sql<ImageRows>`
     SELECT * FROM image AS i
       JOIN product_image AS p ON i.id = p.image
       WHERE p.product = ${productId};
   `)];
+  } catch (e) {
+    return dbError(e as Error, 'fetchImagesOfProduct', productId);
+  }
 }
 
 async function fetchImagesOfReview(reviewId: Id): Promise<Image[]> {
-  const images = await sql<ImageRows>`
+  try {
+    const images = await sql<ImageRows>`
     SELECT * FROM image AS i
       JOIN review_image AS r ON i.id = r.image
       WHERE r.review = ${reviewId};
   `;
-  return [...images];
+    return [...images];
+
+  } catch (e) {
+    return dbError(e as Error, 'fetchImagesOfReview', reviewId);
+  }
 }
 //#endregion
 
@@ -53,7 +67,7 @@ export async function fetchUserById(id: Id): Promise<User> {
     const user = (await sql<UserRows>`SELECT * FROM "user" WHERE id = ${id};`)[0];
     return { ...user, pfp: await fetchImageById(user.pfp) };
   } catch (e) {
-    return dbError(e as Error, 'user');
+    return dbError(e as Error, 'fetchUserById', id);
   }
 }
 //#endregion
@@ -68,7 +82,7 @@ export async function fetchShopById(id: Id): Promise<Shop> {
       banner: await fetchImageById(shop.banner)
     };
   } catch (e) {
-    return dbError(e as Error, 'shop');
+    return dbError(e as Error, 'fetchShopById', id);
   }
 }
 
@@ -85,7 +99,7 @@ export async function fetchShops(count?: number): Promise<Shop[]> {
       banner: await fetchImageById(shop.banner)
     })));
   } catch (e) {
-    return dbError(e as Error, 'shops');
+    return dbError(e as Error, 'fetchShops', count);
   }
 }
 //#endregion
@@ -101,28 +115,36 @@ export async function fetchProductById(id: Id): Promise<Product> {
       images: await fetchImagesOfProduct(prod.id)
     };
   } catch (e) {
-    return dbError(e as Error, 'product', id);
+    return dbError(e as Error, 'fetchProductById', id);
   }
 }
 
 export async function fetchOrderItemsByOrder(orderId: Id): Promise<OrderItem[]> {
-  return Promise.all((await sql<ItemInOrderRows>`SELECT * FROM item_in_order WHERE order = ${orderId}`).map(async orderItem => ({
-    ...orderItem,
-    product: await fetchProductById(orderItem.product)
-  })));
+  try {
+    return Promise.all((await sql<ItemInOrderRows>`SELECT * FROM item_in_order WHERE order = ${orderId}`).map(async orderItem => ({
+      ...orderItem,
+      product: await fetchProductById(orderItem.product)
+    })));
+  } catch (e) {
+    return dbError(e as Error, 'fetchOrderItemsByOrder', orderId);
+  }
 }
 
 export async function fetchProductsOfShopById(shopId: Id): Promise<Product[]> {
-  const products = await sql<ProductRows>`SELECT * FROM product WHERE shop = ${shopId};`;
+  try {
+    const products = await sql<ProductRows>`SELECT * FROM product WHERE shop = ${shopId};`;
 
-  const prods = Promise.all(products.map(async p => ({
-    ...p,
-    shop: await fetchShopById(p.shop),
-    images: await fetchImagesOfProduct(p.id),
-    tags: await fetchTagsOfProduct(p.id)
-  })));
+    const prods = Promise.all(products.map(async p => ({
+      ...p,
+      shop: await fetchShopById(p.shop),
+      images: await fetchImagesOfProduct(p.id),
+      tags: await fetchTagsOfProduct(p.id)
+    })));
 
-  return prods;
+    return prods;
+  } catch (e) {
+    return dbError(e as Error, 'fetchProductsOfShopById', shopId);
+  }
 }
 
 export async function fetchProducts(count?: number): Promise<Product[]> {
@@ -142,30 +164,37 @@ export async function fetchProducts(count?: number): Promise<Product[]> {
       description: p.description
     })));
   } catch (e) {
-    return dbError(e as Error, 'products');
+    return dbError(e as Error, 'fetchProducts', count);
   }
 }
 
-export interface SuperProduct {
-  id: Id;
-  name: string;
+export interface ProductSearchResultProduct {
+  prodId: Id;
+  prodName: string;
   price: number;
   shopName: string;
   shopId: Id;
-  shop: Shop;
-  manager: Id;
+  managerId: Id;
+  managerName: string;
   images: Image[];
   tags: Tag[];
-  location:string;
+  location: string;
 }
 
-export async function searchProductsAndGetCount(query: string, priceRange: number[], currentPage: number) {
+export interface ProductSearchResult {
+  products: ProductSearchResultProduct[];
+  pageCount: number;
+}
+
+export async function searchProductsAndGetCount(query: string, priceRange: number[], currentPage: number): Promise<ProductSearchResult> {
+  if (!query) query = '';
   const [lo, hi] = priceRange;
   const offset = (currentPage - 1) * 6;
   const qstring = `%${query}%`;
   try {
     const [count, products] = await Promise.all([
-      sql`SELECT DISTINCT COUNT(*) FROM product AS p
+      sql`SELECT DISTINCT COUNT(*) 
+          FROM product AS p
           JOIN product_has_tag AS pt ON p.id = pt.product
           JOIN shop AS s ON s.id = p.shop
           JOIN tag AS t ON pt.tag = t.id
@@ -175,29 +204,33 @@ export async function searchProductsAndGetCount(query: string, priceRange: numbe
           s.name ILIKE ${qstring} OR
           t.title ILIKE ${qstring})`,
 
-      sql<SuperProduct[]>`SELECT DISTINCT 
-            p.id, 
-            p.name, 
-            p.price, 
-            s.name AS shopName, 
-            s.id AS shopId,
-            s.manager AS managerId
+      sql<ProductSearchResultProduct[]>`SELECT DISTINCT 
+            p.id AS "prodId",
+            p.name AS "prodName",
+            p.price,
+            u.name AS "managerName",
+            u.id AS "managerId",
+            s.name AS "shopName",
+            s.id AS "shopId",
+            s.location
           FROM product AS p
           JOIN product_has_tag AS pt ON p.id = pt.product
           JOIN shop AS s ON s.id = p.shop
+          JOIN "user" AS u ON u.id = s.manager
           JOIN tag AS t ON pt.tag = t.id
         WHERE
           (p.price BETWEEN ${lo} AND ${hi}) AND
           (p.name ILIKE ${qstring} OR
           s.name ILIKE ${qstring} OR
-          t.title ILIKE ${qstring}) ORDER BY p.id LIMIT 6 OFFSET ${offset}`
+          t.title ILIKE ${qstring}) 
+        ORDER BY p.id LIMIT 6 OFFSET ${offset}`
     ]);
 
     return {
       products: await Promise.all(products.map(async prod => ({
         ...prod,
-        tags: await fetchTagsOfProduct(prod.id),
-        images: await fetchImagesOfProduct(prod.id)
+        tags: await fetchTagsOfProduct(prod.prodId),
+        images: await fetchImagesOfProduct(prod.prodId)
       }))),
       pageCount: Math.ceil(Number(count[0].count) / 6)
     };
@@ -219,35 +252,44 @@ export async function fetchReviewById(id: Id): Promise<Review> {
       images: await fetchImagesOfReview(rev.id)
     };
   } catch (e) {
-    return dbError(e as Error, 'review');
+    return dbError(e as Error, 'fetchReviewById', id);
   }
 }
 
 export async function fetchReviewsOfProduct(productId: Id): Promise<Review[]> {
-  const revs = await sql<ReviewRows>`SELECT * FROM review AS r WHERE r.product = ${productId}`;
-  return Promise.all(revs.map(async rev => ({
-    ...rev,
-    reviewer: await fetchUserById(rev.reviewer),
-    product: await fetchProductById(rev.product),
-    images: await fetchImagesOfReview(rev.id)
-  })));
+  try {
+    const revs = await sql<ReviewRows>`SELECT * FROM review AS r WHERE r.product = ${productId}`;
+    return Promise.all(revs.map(async rev => ({
+      ...rev,
+      reviewer: await fetchUserById(rev.reviewer),
+      product: await fetchProductById(rev.product),
+      images: await fetchImagesOfReview(rev.id)
+    })));
+
+  } catch (e) {
+    return dbError(e as Error, 'fetchReviewsOfProduct', productId);
+  }
 }
 
-export async function fetchReviewsOfSeller(storeId:Id): Promise<Review[]> {
-  const revs = await sql<ReviewRows>`
+export async function fetchReviewsOfSeller(storeId: Id): Promise<Review[]> {
+  try {
+    const revs = await sql<ReviewRows>`
     SELECT r.id, r.title, r.content, r.reviewer, r.posted_at, r.product
       FROM review AS r 
       JOIN product AS p ON r.product = p.id
       WHERE p.shop = ${storeId}
   `;
-  return Promise.all(revs.map(async rev => ({
-    ...rev,
-    reviewer: await fetchUserById(rev.reviewer),
-    product: await fetchProductById(rev.product),
-    images: [/*images are not shown on seller profiles*/]
-  })));
-}
+    return Promise.all(revs.map(async rev => ({
+      ...rev,
+      reviewer: await fetchUserById(rev.reviewer),
+      product: await fetchProductById(rev.product),
+      images: [/*images are not shown on seller profiles*/]
+    })));
 
+  } catch (e) {
+    return dbError(e as Error, 'fetchReviewsOfSeller', storeId);
+  }
+}
 
 //#endregion
 
@@ -264,7 +306,7 @@ export async function fetchOrderById(id: Id): Promise<Order> {
       items
     };
   } catch (e) {
-    return dbError(e as Error, 'order');
+    return dbError(e as Error, 'fetchOrderById', id);
   }
 }
 //#endregion
@@ -274,17 +316,25 @@ export async function fetchTagById(id: Id): Promise<Tag> {
   try {
     return (await sql<TagRows>`SELECT * FROM tag WHERE id = ${id};`)[0];
   } catch (e) {
-    return dbError(e as Error, 'tag');
+    return dbError(e as Error, 'fetchTagById', id);
   }
 }
 
 async function fetchTagsOfProduct(productId: Id): Promise<Tag[]> {
-  const tags = await sql<TagRows>`
-    SELECT * FROM tag AS t
-      JOIN product_has_tag AS p ON t.id = p.tag
-      WHERE p.product = ${productId};
-  `;
-  return [...tags];
+  if (productId === undefined) {
+    console.warn('Attempted to fetch tags of product with missing ID');
+    return [];
+  }
+  try {
+    const tags = await sql<TagRows>`
+      SELECT * FROM tag AS t
+        JOIN product_has_tag AS p ON t.id = p.tag
+        WHERE p.product = ${productId};
+    `;
+    return [...tags];
+  } catch (e) {
+    return dbError(e as Error, 'fetchTagsOfProducts', productId);
+  }
 }
 
 export async function fetchTags(): Promise<Tag[]> {
