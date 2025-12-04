@@ -227,3 +227,100 @@ a {
 }
 
      
+/* ============ GLOBAL LAYOUT CSS ============ */
+
+img {
+  display: block;
+}
+
+/* ============ HEADER ============ */
+
+.h-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.h-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.h-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 20px;
+  color: #111827;
+}
+
+.h-nav {
+  display: flex;
+  gap: 24px;
+  font-size: 15px;
+  color: #374151;
+}
+
+.h-nav a:hover {
+  color: #4f46e5;
+}
+
+.h-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.h-cart-btn {
+  font-size: 22px;
+}
+
+/* ============ FOOTER ============ */
+
+.f-footer {
+  background: #111827;
+  color: #ffffff;
+  padding: 50px 20px 30px;
+  margin-top: 40px;
+}
+
+.f-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  gap: 28px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.f-col h4 {
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.f-col a {
+  display: block;
+  margin: 6px 0;
+  color: #d1d5db;
+  font-size: 14px;
+}
+
+.f-col a:hover {
+  color: #ffffff;
+}
+
+.f-bottom {
+  border-top: 1px solid #1f2937;
+  margin-top: 30px;
+  padding-top: 15px;
+  text-align: center;
+  font-size: 14px;
+  color: #9ca3af;
+}
