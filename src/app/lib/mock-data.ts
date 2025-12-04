@@ -1,18 +1,17 @@
 import {
-  Id, 
-  Url, 
-  Image, ImageRow, ImageRows,  
-  Tag, TagRow, TagRows, 
-  User, UserRow, UserRows, 
-  Shop, ShopRow, ShopRows, 
-  Product, ProductRow, ProductRows, 
-  Review, ReviewRow, ReviewRows, 
-  Order, OrderRow, OrderRows, 
-  OrderItem, ItemInOrderRow, ItemInOrderRows, 
-  ReviewImageRow, ReviewImageRows, 
-  ProductTagRow, ProductTagRows, 
-  ProductImageRow,  ProductImageRows
-} from "./types";
+  Id,
+  Image, ImageRow, ImageRows,
+  TagRow, TagRows,
+  UserRow, UserRows,
+  ShopRow, ShopRows,
+  ProductRow, ProductRows,
+  ReviewRow, ReviewRows,
+  OrderRow, OrderRows,
+  ItemInOrderRow, ItemInOrderRows,
+  ReviewImageRow, ReviewImageRows,
+  ProductTagRow, ProductTagRows,
+  ProductImageRow, ProductImageRows
+} from "@/types/types";
 
 import React from "react";
 const { random, abs, floor, ceil } = Math;
@@ -401,7 +400,7 @@ const mockCache = {
   user: new Map
 };
 
-function checkCache(id: Id|string, path: 'image' | 'item_in_order' | 'order' | 'product' | 'product_has_tag' | 'product_image' | 'review' | 'review_image' | 'shop' | 'tag' | 'user', ifnot: Function) {
+function checkCache(id: Id | string, path: 'image' | 'item_in_order' | 'order' | 'product' | 'product_has_tag' | 'product_image' | 'review' | 'review_image' | 'shop' | 'tag' | 'user', ifnot: ()=>unknown) {
   if (mockCache[path].has(id)) return mockCache[path].get(id);
   mockCache[path].set(id, { id });
   const item = ifnot();
@@ -415,7 +414,7 @@ function checkCache(id: Id|string, path: 'image' | 'item_in_order' | 'order' | '
  * @param {Id[]} ids - pre-set list of IDs to use. Increments if not provided. 
  * @returns {Object[]} list of `count` length filled with the return items from `fn`
  */
-const makeList = <L>(fn: (id?: Id) => L, count?: number, ids: Id[] = []): Array<L> => Array.from({ length: abs(Number(count ?? 10)) }, (i: number) => fn(ids[i]));
+const makeList = <L>(fn: (id?: Id) => L, count?: number, ids: Id[] = []): Array<L> => Array.from({ length: abs(Number(count ?? 10)) }, (_, i: number) => fn(ids[i]));
 
 /**
  * @param {Array} list - array of items to pick from
@@ -429,7 +428,7 @@ const randomItemFromList = <T>(list: Array<T>, force?: number): T => list[floor(
  * @param {Array<Array<string>>} keys - arrays of items to pick a random item from to insert into the template
  * @returns {string} build string from template
  */
-const optionedTemplate = (tmp: ReadonlyArray<string>, ...keys: ReadonlyArray<Array<string>>) => tmp[0] + keys.map((key: string[], i) => randomItemFromList(key) + tmp[i + 1]).join('');
+const optionedTemplate = (tmp: ReadonlyArray<string>, ...keys: ReadonlyArray<Array<string>>): string => tmp[0] + keys.map((key: string[], i) => randomItemFromList(key) + tmp[i + 1]).join('');
 
 /**
  * @param {number} lo - minimum number allowed
@@ -574,11 +573,11 @@ const randomPlaceholderImage = (width: number, height: number): Image => {
 
 //#region singular
 
-export const mockImage = (id: Id = imageId.next()): ImageRow => checkCache(id, 'image', () => ({id,path: randomItemFromList(mockProductImages),width: 100,height: 100,alt_text: 'Placeholder'}));
+export const mockImage = (id: Id = imageId.next()): ImageRow => checkCache(id, 'image', () => ({ id, path: randomItemFromList(mockProductImages), width: 100, height: 100, alt_text: 'Placeholder' }));
 
-export const mockUser = (id: Id = userId.next()): UserRow => checkCache(id, 'user', () => ({id,name: randomFullName(),join_date: randomDate(),pfp: randomPlaceholderImage(128, 128).id}));
+export const mockUser = (id: Id = userId.next()): UserRow => checkCache(id, 'user', () => ({ id, name: randomFullName(), join_date: randomDate(), pfp: randomPlaceholderImage(128, 128).id }));
 
-export const mockShop = (id: Id = shopId.next(), ownerId?: Id): ShopRow => checkCache(id, 'shop', () => ({id,manager: mockUser(ownerId).id,location: randomPlace(),name: randomShopName(),banner: randomPlaceholderImage(200, 150).id}));
+export const mockShop = (id: Id = shopId.next(), ownerId?: Id): ShopRow => checkCache(id, 'shop', () => ({ id, manager: mockUser(ownerId).id, location: randomPlace(), name: randomShopName(), banner: randomPlaceholderImage(200, 150).id }));
 
 export const mockProduct = (id: Id = productId.next()): ProductRow => checkCache(id, 'product', () => {
   Array.from({ length: randomInRange(1, 5) }, () => mockProductTag(id, tagId.any()));
@@ -605,7 +604,7 @@ export const mockReview = (id: Id = reviewId.next()): ReviewRow => checkCache(id
   };
 });
 
-export const mockTag = (id: Id = tagId.next()): TagRow => checkCache(id, 'tag', () => ({id,title: randomTagTitle()}));
+export const mockTag = (id: Id = tagId.next()): TagRow => checkCache(id, 'tag', () => ({ id, title: randomTagTitle() }));
 
 export const mockOrder = (id: Id = orderId.next()): OrderRow => checkCache(id, 'order', () => {
   const items = Array.from({ length: randomInRange(1, 3) }, () => mockOrderItem(id));
@@ -624,19 +623,19 @@ export const mockOrderItem = (id: Id = orderId.any(), item?: Id): ItemInOrderRow
   quantity: randomInRange(1, 3)
 }));
 
-export const mockReviewImage = (rev: Id = reviewId.next(), img?: Id): ReviewImageRow => checkCache(`${rev}|${img}`, 'review_image', () => ({ 
-  review: mockReview(rev).id, 
-  image: mockImage(img).id 
+export const mockReviewImage = (rev: Id = reviewId.next(), img?: Id): ReviewImageRow => checkCache(`${rev}|${img}`, 'review_image', () => ({
+  review: mockReview(rev).id,
+  image: mockImage(img).id
 }));
 
-export const mockProductTag = (prod: Id = productId.any(), tag: Id = tagId.any()): ProductTagRow => checkCache(`${prod}|${tag}`, 'product_has_tag', () => ({ 
-  product: mockProduct(prod).id, 
-  tag: mockTag(tag).id 
+export const mockProductTag = (prod: Id = productId.any(), tag: Id = tagId.any()): ProductTagRow => checkCache(`${prod}|${tag}`, 'product_has_tag', () => ({
+  product: mockProduct(prod).id,
+  tag: mockTag(tag).id
 }));
 
-export const mockProductImage = (prod: Id = productId.any(), img: Id = imageId.any()): ProductImageRow => checkCache(`${prod}|${img}`, 'product_image', () => ({ 
-  product: mockProduct(prod).id, 
-  image: mockImage(img).id 
+export const mockProductImage = (prod: Id = productId.any(), img: Id = imageId.any()): ProductImageRow => checkCache(`${prod}|${img}`, 'product_image', () => ({
+  product: mockProduct(prod).id,
+  image: mockImage(img).id
 }));
 
 //#endregion

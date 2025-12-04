@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { Shop } from "@/app/lib/types";
+import type { Shop } from "@/types/types";
 import Image from "next/image";
 
-function SellerItem({ shop }: { shop: Shop; }) {
+function ShopItem({ shop }: { shop: Shop; }) {
   const seller = shop.manager;
   return (
     <div className="product-list-item-card">
@@ -13,26 +13,26 @@ function SellerItem({ shop }: { shop: Shop; }) {
       <div className="product-image-wrapper">
         <Image
           className="home-product-image"
-          src={seller.shopBanner}
-          alt={`shop banner for ${seller.shopName}`}
-          width={200}
-          height={150}
+          src={shop.banner.path}
+          alt={shop.banner.alt_text}
+          width={shop.banner.width}
+          height={shop.banner.height}
         />
       </div>
       <div className="product-info">
-        <p className="home-product-item">{seller.shopName}</p>
+        <p className="home-product-item">{seller.name}</p>
         <p className="home-product-shop">
           by <i>{seller.name}</i>
         </p>
         <p className="home-product-shop">
-          joined {seller.joinDate.toLocaleDateString()}
+          joined {seller.join_date.toLocaleDateString()}
         </p>
       </div>
     </div>
   );
 }
 
-export default function SellerList({ sellers }: { sellers: Seller[]; }) {
+export default function ShopList({ shops }: { shops: Shop[]; }) {
   const [showAll, setShowAll] = useState(false);
   const [visibleCount, setVisibleCount] = useState(4);
 
@@ -52,14 +52,14 @@ export default function SellerList({ sellers }: { sellers: Seller[]; }) {
   }, []);
 
   const visibleSellers = showAll
-    ? sellers.slice(0, 6)
-    : sellers.slice(0, visibleCount);
+    ? shops.slice(0, 6)
+    : shops.slice(0, visibleCount);
 
   return (
     <>
       <div className="home-seller-gallery">
-        {visibleSellers.map((seller) => (
-          <SellerItem seller={seller} key={seller.id} />
+        {visibleSellers.map((shop) => (
+          <ShopItem shop={shop} key={shop.id} />
         ))}
       </div>
 

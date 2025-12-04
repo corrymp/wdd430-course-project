@@ -2,7 +2,7 @@
 
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
-import type { Product } from "@/app/lib/types";
+import type { Product } from "@/types/types";
 import ProductListItem from "./ProductListItem";
 
 export default function FeaturedProducts({
@@ -16,7 +16,7 @@ export default function FeaturedProducts({
 
       <Splide
         options={{
-          type: "loop", 
+          type: "loop",
           perPage: 4,
           perMove: 1,
           gap: "1rem",

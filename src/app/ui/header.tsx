@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { PlaceholderImage } from "../lib/mock-data";
 import { Menu, X } from "lucide-react";
+import Image from "next/image";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -21,7 +21,7 @@ export default function Header() {
   return (
     <header className="header">
       <div className="logo">
-        <PlaceholderImage width={66} height={66} />
+        <Image src={'images/logo.svg'} alt="Handcrafted Haven" width={66} height={66}/>
         <p>Handcrafted Haven</p>
       </div>
 

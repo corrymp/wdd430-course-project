@@ -34,16 +34,18 @@ export interface Product {
   tags: Array<Tag>;
   images: Array<Image>;
   listed_at: Date;
+  description: string;
 };
 
 export interface Review {
   id: Id;
-  reviewer: Id;
-  product: Id;
+  reviewer: User;
+  product: Product;
   title: string;
   content: string;
   rating: number;
   images: Array<Image>;
+  posted_at: Date;
 };
 
 export interface Tag {
@@ -72,6 +74,7 @@ export interface OrderItem {
 interface TableRow {
   id: Id;
 };
+export type Row = ImageRow|UserRow|ShopRow|ProductRow|ReviewRow|OrderRow|TagRow;
 
 export interface ImageRow extends TableRow {
   path: Url;
@@ -98,6 +101,7 @@ export interface ProductRow extends TableRow {
   shop: Id;
   price: number;
   listed_at: Date;
+  description: string;
 };
 
 export interface ReviewRow extends TableRow {
@@ -112,7 +116,6 @@ export interface ReviewRow extends TableRow {
 export interface OrderRow extends TableRow {
   seller: Id;
   buyer: Id;
-  amount: number;
   payed_at: Date | null;
 };
 
@@ -121,6 +124,7 @@ export interface TagRow extends TableRow {
 };
 //#endregion
 //#region joiner table rows
+export type JoinerRow = ProductTagRow|ProductImageRow|ItemInOrderRow|ReviewImageRow;
 
 // product -< product_tag >- tag
 export interface ProductTagRow {
@@ -162,7 +166,3 @@ export type ItemInOrderRows = Array<ItemInOrderRow>;
 export type ReviewImageRows = Array<ReviewImageRow>;
 //#endregion
 //#endregion
-
-
-export type Row = ImageRow|UserRow|ShopRow|ProductRow|ReviewRow|OrderRow|TagRow;
-export type JoinerRow = ProductTagRow|ProductImageRow|ItemInOrderRow|ReviewImageRow;

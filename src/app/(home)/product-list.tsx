@@ -1,4 +1,4 @@
-import type { Product, Shop } from "@/app/lib/types";
+import type { Product, Shop } from "@/types/types";
 import Gallery from "@/app/ui/gallery";
 import TagList from "@/app/ui/tag-list";
 import Image from "next/image";
