@@ -11,11 +11,21 @@ type Product = {
 
 type Seller = {
   name: string;
+  location: string;
+  rating: number;
+  totalReviews: number;
+  sales: string;
+  yearsOnPlatform: number;
   products: Product[];
 };
 
 const seller: Seller = {
   name: 'Nico Artisan',
+  location: 'United States',
+  rating: 4.8,
+  totalReviews: 300,
+  sales: '4.1k',
+  yearsOnPlatform: 1,
   products: [
     { id: 1, name: 'Ceramic Jar', price: 350, image: '/images/products/jar.jpg' },
     { id: 2, name: 'Wooden Spoon', price: 120, image: '/images/products/spoon.jpg' },
@@ -28,15 +38,41 @@ export default function SellerProfile() {
     <div className={styles.container}>
       {/* Seller Info */}
       <section className={styles.sellerInfo}>
-        <Image src="/images/sellers/avatar.svg" alt="Seller Avatar" className={styles.sellerAvatar} width={120} height={120} />
-        <div>
-          <h1>{seller.name}</h1>
-          <p>Artisan specializing in handmade crafts.</p>
+        <Image src="/images/sellers/avatar.svg" alt="Seller Avatar" className={styles.sellerAvatar} width={80} height={80} />
+        <div className={styles.sellerDetails}>
+          <div className={styles.sellerHeader}>
+            <h1>{seller.name}</h1>
+            <span className={styles.verified}>✓</span>
+          </div>
+          <p className={styles.location}>{seller.location}</p>
+          <div className={styles.statsRow}>
+            <div className={styles.stat}>
+              <span className={styles.starIcon}>★</span>
+              <span className={styles.statValue}>{seller.rating}</span>
+              <span className={styles.statLabel}>({seller.totalReviews})</span>
+            </div>
+            <div className={styles.divider}>|</div>
+            <div className={styles.stat}>
+              <span className={styles.statValue}>{seller.sales}</span>
+              <span className={styles.statLabel}>sales</span>
+            </div>
+            <div className={styles.divider}>|</div>
+            <div className={styles.stat}>
+              <span className={styles.statValue}>{seller.yearsOnPlatform}</span>
+              <span className={styles.statLabel}>year</span>
+            </div>
+          </div>
         </div>
       </section>
 
+      {/* Navigation */}
+      <nav className={styles.nav}>
+        <a href="#products" className={styles.navLink}>Items</a>
+        <a href="#reviews" className={styles.navLink}>Reviews</a>
+      </nav>
+
       {/* Product List */}
-      <section className={styles.productList}>
+      <section id="products" className={styles.productList}>
         <h2>Products</h2>
         <div className={styles.grid}>
           {seller.products.map((product) => (
@@ -46,7 +82,7 @@ export default function SellerProfile() {
       </section>
 
       {/* Reviews & Comments */}
-      <section className={styles.reviews}>
+      <section id="reviews" className={styles.reviews}>
         <h2>Reviews & Comments</h2>
         <ul className={styles.reviewList}>
           <li>
