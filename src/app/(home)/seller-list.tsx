@@ -20,7 +20,7 @@ function ShopItem({ shop }: { shop: Shop; }) {
         />
       </div>
       <div className="product-info">
-        <p className="home-product-item">{seller.name}</p>
+        <p className="home-product-item">{shop.name}</p>
         <p className="home-product-shop">
           by <i>{seller.name}</i>
         </p>

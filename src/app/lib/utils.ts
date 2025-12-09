@@ -1,3 +1,6 @@
+import { Review } from "@/types/types";
+
+//#region next.js stuff
 /**
  * formatDateToLocale, formatCurrency, and generatePagination from Next.js
  * https://github.com/vercel/next-learn/blob/main/dashboard/final-example/app/lib/utils.ts
@@ -27,17 +30,63 @@ export const generatePagination = (currentPage: number, totalPages: number): (nu
   if (currentPage >= totalPages - 2) return [1, 2, '...', totalPages - 2, totalPages - 1, totalPages];
   return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
 };
+//#endregion
 
-export const date = () => new Date().toISOString().split('T')[0];
-
-export const dateFrom = (d: string | number | Date | undefined) => d === undefined ? null : new Date(d).toISOString().split('T')[0];
-
-export const debounce = <F extends (...args: Parameters<F>) => ReturnType<F>>(fn: F, ms: number, id?: number | NodeJS.Timeout | undefined, res?: ReturnType<F>) => (...args: Parameters<F>) => (id = (clearTimeout(id), setTimeout(() => res = fn(...args), ms)), res);
+//#region time-based
+/**
+ * @returns {string} the current date in YYYY-MM-DD format
+ */
+export const date = (): string => new Date().toISOString().split('T')[0];
 
 /**
- * @param first - number that will begin the array
- * @param last - number that will end the array
- * @param increment - step between numbers. May be negative
+ * @param date - date to extract data from
+ * @returns {string|null} the passed date in YYYY-MM-DD format (null if missing)
+ */
+export const dateFrom = (date: string | number | Date | undefined): string | null => date === undefined ? null : new Date(date).toISOString().split('T')[0];
+
+/**
+ * @param {string | number | Date} startDate - from date
+ * @param {string | number | Date} endDate - to date. defaults to current time
+ * @param {number} decimalPlaces - number of digits after the decimal point. Only uses as many as needed. Default: 1
+ * @returns {number} time between dates expressed in decimal form
+ */
+export const getTimeBetween = (startDate: string | number | Date, endDate: string | number | Date = new Date, decimalPlaces: number = 1): number => (decimalPlaces = 10 ** decimalPlaces, typeof startDate !== 'object' && (startDate = new Date(startDate)), typeof endDate !== 'object' && (endDate = new Date(endDate)), Math.round((endDate.getFullYear() - startDate.getFullYear() + (endDate.getMonth() - startDate.getMonth()) / 12) * decimalPlaces) / decimalPlaces);
+//#endregion
+
+//#region function wrappers
+
+/**
+ * @param {F extends (...args: Parameters<F>) => ReturnType<F>} fn - function to debounce
+ * @param {number} ms - time to wait before calling function
+ * @param {number|Node.JS.Timeout|undefined} id - timeout ID
+ * @param {ReturnType<F>} res - default result. Continualy overwriten with result of most recent call
+ * @returns {ReturnType<F>} result of most resent successful call
+ */
+export const debounce = <F extends (...args: Parameters<F>) => ReturnType<F>>(fn: F, ms: number, id?: ReturnType<typeof setTimeout>, res?: ReturnType<F>): (...args: Parameters<F>) => typeof res => (...args: Parameters<F>): typeof res => (clearTimeout(id), id = setTimeout(() => res = fn(...args), ms), res);
+
+/**
+ * @description wraps a function in a try-catch block.
+ *  Calling the wrapped function returns an array with either: 
+ *  - undefined and the result of the call
+ *  - an error thrown by the call and undefined
+ * @param {Function} fn - function to wrap
+ * @returns {(...v: Array<any>) => ([undefined, ReturnType<typeof fn>] | [Error, undefined])} wrapped function
+ */
+export function t<Args, Returns>(fn: (...v: Args[]) => Returns): (...v: Array<Args>) => ([undefined, ReturnType<typeof fn>] | [Error, undefined]) {
+  return function(...v) {
+    try {
+      return [undefined, fn(...v)];
+    } catch (e) {
+      return [e as Error, undefined];
+    }
+  };
+};
+//#endregion
+
+/**
+ * @param {number} first - number that will begin the array
+ * @param {number} last - number that will end the array
+ * @param {number} increment - step between numbers. May be negative
  * @returns {Array<number>} array of numbers from `start` up to and including `last`
  * @throws {RangeError} if `last` is unreachable from `first` using `increment`
  */
@@ -73,19 +122,8 @@ export const range = (first: number, last: number, increment: number): Array<num
 };
 
 /**
- * @description wraps a function in a try-catch block.
- *  Calling the wrapped function returns an array with either: 
- *  - undefined and the result of the call
- *  - an error thrown by the call and undefined
- * @param {Function} fn - function to wrap
- * @returns {(...v: Array<any>) => ([undefined, ReturnType<typeof fn>] | [Error, undefined])} wrapped function
+ * @param {Review[]} reviews - list of reviews to average ratings of
+ * @param {number?} decimalPlaces - number of digits after decimal point. Only uses as many as needed. Default: 1
+ * @returns {number} avgerage rating in decimal form
  */
-export function t<Args, Returns>(fn: (...v: Args[]) => Returns): (...v: Array<Args>) => ([undefined, ReturnType<typeof fn>] | [Error, undefined]) {
-  return function(...v) {
-    try {
-      return [undefined, fn(...v)];
-    } catch (e) {
-      return [e as Error, undefined];
-    }
-  };
-};
+export const sumRating = (reviews: Review[], decimalPlaces: number = 1): number => ((decimalPlaces = 10 ** decimalPlaces), Math.round((reviews.reduce((acc, cur) => acc + cur.rating, 0) / reviews.length) * decimalPlaces) / decimalPlaces);

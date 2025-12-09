@@ -119,7 +119,7 @@ export default function ProductDetails({ product, reviews }: { product: Product;
 
         <div>
           <div style={{ fontWeight: 600 }}>{shop.manager.name}</div>
-          <a href={`/sellers/${shop.id}`} style={{ color: '#4f46e5', fontSize: 14, marginTop: 6, display: 'inline-block' }}>View seller profile</a>
+          <a href={`/profiles/${shop.id}`} style={{ color: '#4f46e5', fontSize: 14, marginTop: 6, display: 'inline-block' }}>View seller profile</a>
         </div>
       </div>
     </section>

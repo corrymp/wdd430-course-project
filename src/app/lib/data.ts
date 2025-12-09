@@ -274,13 +274,14 @@ export async function fetchReviewsOfProduct(productId: Id): Promise<Review[]> {
 export async function fetchReviewsOfSeller(storeId: Id): Promise<Review[]> {
   try {
     const revs = await sql<ReviewRows>`
-    SELECT r.id, r.title, r.content, r.reviewer, r.posted_at, r.product
+    SELECT r.id, r.title, r.content, r.reviewer, r.posted_at, r.product, r.rating
       FROM review AS r 
       JOIN product AS p ON r.product = p.id
       WHERE p.shop = ${storeId}
   `;
     return Promise.all(revs.map(async rev => ({
       ...rev,
+      rating: parseFloat(String(rev.rating)),
       reviewer: await fetchUserById(rev.reviewer),
       product: await fetchProductById(rev.product),
       images: [/*images are not shown on seller profiles*/]
@@ -309,6 +310,20 @@ export async function fetchOrderById(id: Id): Promise<Order> {
     return dbError(e as Error, 'fetchOrderById', id);
   }
 }
+
+export async function getTotalSales(storeId: Id): Promise<number> {
+  try {
+    return (await sql<{total: number | null}[]>`
+      SELECT SUM("quantity") AS total
+        FROM item_in_order AS i
+        JOIN "order" AS o ON o.id = i.order
+        WHERE o.seller = ${storeId}
+    `)[0].total ?? 0;
+  } catch (e) {
+    return dbError(e as Error, 'getTotalSales');
+  }
+}
+
 //#endregion
 
 //#region tag

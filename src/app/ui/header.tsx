@@ -23,7 +23,7 @@ export default function Header() {
 
         {/* Logo */}
         <Link href="/" className="h-logo">
-          <Image src="images/logo.svg" alt="Handcrafted Haven" width={40} height={40} />
+          <Image src="/images/logo.svg" alt="Handcrafted Haven" width={40} height={40} />
           <span>Handcrafted Haven</span>
         </Link>
 

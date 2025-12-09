@@ -5,7 +5,7 @@ import { Product } from '@/types/types';
 export default function ProductCard({ product }: { product: Product; }) {
   return (
     <div className="product-card">
-      <Link href="#" style={{ textDecoration: 'none', color: 'inherit' }}>
+      <Link href={`/products/${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
         <div className="image-wrap" style={{ width: '100%', height: 180, overflow: 'hidden', backgroundColor: '#f5f0e8', cursor: 'pointer' }}>
           <Image
             src={product.images[0].path}

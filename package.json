@@ -11,15 +11,16 @@
   "dependencies": {
     "@splidejs/react-splide": "^0.7.12",
     "@splidejs/splide": "^4.1.4",
+    "bcrypt": "^6.0.0",
     "lucide-react": "^0.555.0",
     "next": "16.0.2",
-    "bcrypt": "^6.0.0",
     "postgres": "^3.4.7",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "zod": "^4.1.13"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
