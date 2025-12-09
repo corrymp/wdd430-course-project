@@ -1,0 +1,85 @@
+.pag {
+  display: inline-flex;
+}
+
+.pag .crumbs {
+  display: flex;
+
+  & > :not(:last-child) {
+    margin-inline-start: 0;
+    margin-inline-end: -1px;
+  }
+}
+
+.pag-crumb {
+  font-size: 0.875rem;
+  line-height: calc(1.25 / 0.875);
+  display: flex;
+  height: calc(.25rem * 10);
+  width: calc(.25rem * 10);
+  align-items: center;
+  justify-content: center;
+  border-style: solid;
+}
+
+.middle {
+  color: oklch(87.2% 0.01 258.338);
+}
+
+.first, 
+.single {
+  border-top-left-radius: 0.375rem;
+  border-bottom-left-radius: 0.375rem;
+}
+
+.last, 
+.single {
+  border-top-right-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
+}
+
+.active {
+  z-index: 10;
+  background-color: oklch(54.6% 0.245 262.881);
+  color: white;
+}
+
+.inactive:not(.middle):hover {
+  background-color: oklch(96.7% 0.003 264.542);
+}
+
+.pag-arr {
+  display: flex;
+  height: calc(.25rem * 10);
+  width: calc(.25rem * 10);
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  border-style: solid;
+}
+
+.pag-arr.left {
+  margin-right: .5rem;
+}
+
+.pag-arr.right {
+  margin-left: .5rem;
+}
+
+.diabled {
+  pointer-events: none;
+  color: oklch(87.2% 0.01 258.338);
+}
+
+.enabled:hover {
+  background-color: oklch(96.7% 0.003 264.542);
+}
+
+@media (width >= 48rem) {
+  .pag-arr.left {
+    margin-right: 1rem;
+  }
+  .pag-arr.right {
+    margin-left: 1rem;
+  }
+}

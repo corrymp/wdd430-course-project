@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 64 64" fill="#fc0" stroke="#110">
+  <style>
+    * {
+      transform-origin:center
+    }
+  </style>
+  <g stroke-width=".3">
+    <g fill="#fa0">
+      <g transform="rotate(180)">
+        <use href="#p" transform="rotate(-70)"/>
+        <use href="#p" transform="rotate(-50)"/>
+        <use href="#p" transform="rotate(-30)"/>
+        <use href="#p" transform="rotate(-10)"/>
+        <use href="#p" transform="rotate(10)"/>
+        <use href="#p" transform="rotate(30)"/>
+        <use href="#p" transform="rotate(50)"/>
+        <use href="#p" transform="rotate(70)"/>
+      </g>
+      <use href="#r" transform="rotate(-70)"/>
+      <use href="#r" transform="rotate(-50)"/>
+      <use href="#r" transform="rotate(-30)"/>
+      <use href="#r" transform="rotate(-10)"/>
+      <use href="#r" transform="rotate(10)"/>
+      <use href="#r" transform="rotate(30)"/>
+      <use href="#r" transform="rotate(50)"/>
+      <use href="#r" transform="rotate(70)"/>
+    </g>
+    <circle cx="32" cy="32" r="21.9" stroke-width=".6"/>
+    <use href="#r" transform="rotate(-80)"/>
+    <use href="#r" transform="rotate(-60)"/>
+    <use href="#r" transform="rotate(-40)"/>
+    <use href="#r" transform="rotate(-20)"/>
+    <path id="r" d="m32 3.3c2 2-1 3 3 7h-6c2-4 4-5 3-7z"/>
+    <use href="#r" transform="rotate(20)"/>
+    <use href="#r" transform="rotate(40)"/>
+    <use href="#r" transform="rotate(60)"/>
+    <use href="#r" transform="rotate(80)"/>
+    <g transform="rotate(180)">
+      <use href="#p" transform="rotate(-80)"/>
+      <use href="#p" transform="rotate(-60)"/>
+      <use href="#p" transform="rotate(-40)"/>
+      <use href="#p" transform="rotate(-20)"/>
+      <path id="p" d="m32 4.3c2 1 3 2 3 6h-6c0-4 1-5 3-6z"/>
+      <use href="#p" transform="rotate(20)"/>
+      <use href="#p" transform="rotate(40)"/>
+      <use href="#p" transform="rotate(60)"/>
+      <use href="#p" transform="rotate(80)"/>
+    </g>
+  </g>
+  <circle stroke="none" cx="32" cy="32" r="22"/>
+  <path id="a" fill="#a50" stroke-width=".05" d="m12 32a1 1 0 0 0 40 0"/>
+  <mask id="m">
+    <use href="#a" fill="#fff"/>
+  </mask>
+  <g mask="url(#m)" fill="none" stroke-width=".1">
+    <g id="b">
+      <circle id="c" cx="33" cy="32" r="20"/>
+      <use href="#c" x="1"/>
+      <use href="#c" x="3"/>
+      <use href="#c" x="5"/>
+      <use href="#c" x="7"/>
+      <use href="#c" x="9"/>
+      <use href="#c" x="11"/>
+      <use href="#c" x="13"/>
+      <use href="#c" x="15"/>
+      <use href="#c" x="17"/>
+      <use href="#c" x="19"/>
+      <use href="#c" x="21"/>
+      <use href="#c" x="23"/>
+      <use href="#c" x="25"/>
+      <use href="#c" x="27"/>
+      <use href="#c" x="29"/>
+      <use href="#c" x="31"/>
+      <use href="#c" x="33"/>
+      <use href="#c" x="35"/>
+      <use href="#c" x="37"/>
+    </g>
+    <use href="#b" x="-40"/>
+  </g>
+  <g id="e" stroke-width=".01" fill="#eef">
+    <circle id="d" cx="20" cy="24.5" r="4"/>
+    <use href="#d" x="6" y="-2"/>
+    <use href="#d" x="1.75" y="-3.75"/>
+  </g>
+  <use href="#e" transform="scale(-1 1)"/>
+</svg>
