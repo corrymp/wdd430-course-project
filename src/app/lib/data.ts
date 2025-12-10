@@ -13,7 +13,7 @@ import {
 } from '@/types/types';
 import { mockImageList } from '@/app/lib/mock-data';
 
-const sql = postgres(process.env.POSTGRESS_URL!, { ssl: 'require' });
+export const sql = postgres(process.env.POSTGRESS_URL!, { ssl: 'require' });
 
 function dbError(e: Error, type: string, ...rest: Array<unknown>): never {
   console.error(`Database error (${type}): ${e.message}${rest.length > 0 ? `; passed args: < ${rest.join(', ')} >` : ''}`, e);

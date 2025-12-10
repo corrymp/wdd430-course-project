@@ -3,6 +3,7 @@ import "@/app/globals.css";
 
 import Header from "@/app/ui/header";
 import Footer from "@/app/ui/footer";
+import { AuthProvider } from "./lib/AuthContext";
 
 export const metadata: Metadata = {
   title: {
@@ -16,14 +17,14 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body>
-        <Header />
+        <AuthProvider>
+          <Header />
 
-        <main>
-          {children}
-        </main>
+          <main>{children}</main>
 
-        <Footer />
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
-  )
+  );
 }
