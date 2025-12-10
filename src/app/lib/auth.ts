@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { serialize } from "cookie";
 import { User, JWTPayload } from "@/types/auth";
-import { sql } from "./data";
+import { sql } from "@/app/lib/data";
 
 // Make sure JWT_SECRET exists
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -64,7 +64,9 @@ export async function loginUser(
   );
 
   // Remove password_hash before returning
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   const { password_hash, ...safeUser } = user;
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 
   return { user: safeUser as User, token };
 }

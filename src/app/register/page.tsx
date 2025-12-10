@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../lib/AuthContext";
+import { useAuth } from "@/app/lib/AuthContext";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -29,8 +29,8 @@ export default function RegisterPage() {
 
       alert("Registration successful!");
       router.push("/"); // redirect after auto-login
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if(err instanceof Error) setError(err.message);
     }
   };
 

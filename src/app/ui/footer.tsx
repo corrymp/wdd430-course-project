@@ -20,8 +20,8 @@ export default function Footer() {
         <div className="f-col">
           <h4>Explore</h4>
           <Link href="/products">All Products</Link>
-          <Link href="/categories">Categories</Link>
-          <Link href="/sellers">Meet the Sellers</Link>
+          <Link href="/products">Categories</Link>
+          <Link href="/profiles">Meet the Sellers</Link>
           <Link href="/contact">Contact</Link>
         </div>
 

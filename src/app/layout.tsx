@@ -3,7 +3,8 @@ import "@/app/globals.css";
 
 import Header from "@/app/ui/header";
 import Footer from "@/app/ui/footer";
-import { AuthProvider } from "./lib/AuthContext";
+import { AuthProvider } from "@/app/lib/AuthContext";
+import { StrictMode } from "react";
 
 export const metadata: Metadata = {
   title: {
@@ -15,16 +16,18 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
   return (
-    <html lang="en">
-      <body>
-        <AuthProvider>
-          <Header />
+    <StrictMode>
+      <html lang="en">
+        <body>
+          <AuthProvider>
+            <Header />
 
-          <main>{children}</main>
+            <main>{children}</main>
 
-          <Footer />
-        </AuthProvider>
-      </body>
-    </html>
+            <Footer />
+          </AuthProvider>
+        </body>
+      </html>
+    </StrictMode>
   );
 }

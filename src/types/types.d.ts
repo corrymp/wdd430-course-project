@@ -90,7 +90,13 @@ export interface UserRow extends TableRow {
   join_date: Date;
   email: string;
   role: Role;
-  password_hash: string
+  password_hash: string;
+
+  pfpId: Id;
+  path: Url;
+  alt_text: string;
+  width: number;
+  height: number;
 };
 
 export interface ShopRow extends TableRow {

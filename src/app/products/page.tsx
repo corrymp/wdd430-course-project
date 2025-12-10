@@ -1,4 +1,4 @@
-import { ProductSearchResultProduct, searchProductsAndGetCount } from "@/app/lib/data";
+import { ProductQueryResult, searchProductsAndGetCount } from "@/app/lib/data";
 import Pagination from "@/app/ui/pagination";
 import TagList from "@/app/ui/tag-list";
 import { Suspense } from "react";
@@ -7,7 +7,7 @@ import Link from "next/link";
 import Search from "@/app/ui/searchProducts";
 import '@/app/ui/search-pages.css';
 
-async function SearchItems({ products }: { products: ProductSearchResultProduct[]; }) {
+async function SearchItems({ products }: { products: ProductQueryResult[]; }) {
   return (
     <ul className="search-results products-list">
       {products.map(product => {
@@ -15,11 +15,11 @@ async function SearchItems({ products }: { products: ProductSearchResultProduct[
         return (
           <li className="result-item search-item" key={product.prodId}>
             <Link className="products-link-main search-item-link-main" href={`products/${product.prodId}`}>
-              <Image 
+              <Image
                 className="products-prod-img search-res-main-img"
-                src={image.path} 
-                alt={image.alt_text} 
-                width={image.width} 
+                src={image.path}
+                alt={image.alt_text}
+                width={image.width}
                 height={image.height}
               />
               <h3>{product.prodName}</h3>

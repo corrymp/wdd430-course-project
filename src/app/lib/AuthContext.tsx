@@ -3,8 +3,7 @@ import {
   createContext,
   useContext,
   useState,
-  ReactNode,
-  useEffect,
+  ReactNode
 } from "react";
 
 type AuthContextType = {
@@ -13,14 +12,18 @@ type AuthContextType = {
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
+let didInit = false;
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [authenticated, setAuthenticated] = useState(false);
 
-  useEffect(() => {
+  if(!didInit && typeof window !== 'undefined') {
+    // this is okay according to React: https://react.dev/learn/you-might-not-need-an-effect#initializing-the-application
+    /* eslint-disable react-hooks/globals */
+    didInit = true;
+    /* eslint-enable react-hooks/globals */
     const token = localStorage.getItem("token");
     setAuthenticated(!!token);
-  }, []);
+  }
 
   return (
     <AuthContext.Provider value={{ authenticated, setAuthenticated }}>

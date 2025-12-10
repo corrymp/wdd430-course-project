@@ -49,7 +49,7 @@ export default function Header() {
             🛒
           </Link>
           {authenticated ? (
-            <Link href="/account" className="h-account h-cart-btn">
+            <Link href="/account" className="h-account h-cart-btn" suppressHydrationWarning >
               👤
             </Link>
           ) : (
@@ -60,7 +60,7 @@ export default function Header() {
         </div>
 
         {/* Mobile hamburger */}
-        <button className="hamburger" onClick={toggleMenu}>
+        <button className="hamburger" onClick={toggleMenu} title="menu">
           {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 

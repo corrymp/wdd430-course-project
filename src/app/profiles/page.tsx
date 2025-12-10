@@ -1,48 +1,48 @@
-import { ShopSearchResultShop, searchShopAndGetCount } from "@/app/lib/data";
+import { ShopQueryResult, searchShopAndGetCount } from "@/app/lib/data";
 import Pagination from "@/app/ui/pagination";
 import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Search from "@/app/ui/searchShops";
-import { date, dateFrom } from "../lib/utils";
+import { date, dateFrom } from "@/app/lib/utils";
 import '@/app/ui/search-pages.css';
 
-async function SearchItems({ shops }: { shops: ShopSearchResultShop[]; }) {
+async function SearchItems({ shops }: { shops: ShopQueryResult[]; }) {
   return (
     <ul className="search-results profiles-list">
-      {shops.map(shop => {
-        const banner = shop.banner;
-        const pfp = shop.pfp;
-        return (
-          <li className="result-item search-item" key={shop.sellerId}>
-            <Link className="profiles-link-main search-item-link-main" href={`profiles/${shop.shopId}`} style={{
-              backgroundImage: `url('${banner.path}')`
-            }}>
-              <Image 
-                className="profiles-pfp search-res-main-img" 
-                src={pfp.path} 
-                alt={pfp.alt_text} 
-                width={pfp.width} 
-                height={pfp.height}
-              />
-              <h3>{shop.shopName}</h3>
-            </Link>
-            <p>
-              <Link 
-                className="profiles-link-shop" 
-                href={`profiles/${shop.shopId}`}
-              >{shop.shopName}</Link> |{' '}
+      {shops.map(shop => (
+        <li className="result-item search-item" key={shop.sellerId}>
+          <Link 
+            className="profiles-link-main search-item-link-main" 
+            href={`profiles/${shop.id}`} 
+            style={{
+              backgroundImage: `url('${shop.bannerPath}')`
+            }}
+          >
+            <Image
+              className="profiles-pfp search-res-main-img"
+              src={shop.pfpPath}
+              alt={shop.pfpAlt}
+              width={shop.pfpWidth}
+              height={shop.pfpHeight}
+            />
+            <h3>{shop.name}</h3>
+          </Link>
+          <p>
+            <Link
+              className="profiles-link-shop"
+              href={`profiles/${shop.id}`}
+            >{shop.name}</Link> |{' '}
 
-              <Link 
-                className="profiles-link-prof" 
-                href={`profiles/${shop.sellerId}`}
-              >{shop.sellerName}</Link> |{' '}
+            <Link
+              className="profiles-link-prof"
+              href={`profiles/${shop.sellerId}`}
+            >{shop.sellerName}</Link> |{' '}
 
-              <span className="profiles-loc">{shop.location}</span>
-            </p>
-          </li>
-        );
-      })}
+            <span className="profiles-loc">{shop.location}</span>
+          </p>
+        </li>
+      ))}
     </ul>
   );
 }
