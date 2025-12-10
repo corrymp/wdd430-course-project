@@ -1,7 +1,7 @@
 'use server';
 import postgres from 'postgres';
 import {
-  Id,
+  Id, Url,
   Image, ImageRows,
   User, UserRows,
   Shop, ShopRows,
@@ -11,9 +11,9 @@ import {
   Product, ProductRows,
   OrderItem, ItemInOrderRows
 } from '@/types/types';
-import { mockImageList } from './mock-data';
+import { mockImageList } from '@/app/lib/mock-data';
 
-const sql = postgres(process.env.POSTGRESS_URL!, { ssl: 'require' });
+export const sql = postgres(process.env.POSTGRESS_URL!, { ssl: 'require' });
 
 function dbError(e: Error, type: string, ...rest: Array<unknown>): never {
   console.error(`Database error (${type}): ${e.message}${rest.length > 0 ? `; passed args: < ${rest.join(', ')} >` : ''}`, e);
@@ -62,10 +62,50 @@ async function fetchImagesOfReview(reviewId: Id): Promise<Image[]> {
 //#endregion
 
 //#region user
+
+export interface UserQueryResult {
+  id: Id;
+  name: string;
+  pfp: Id;
+  join_date: Date;
+  pfpId: Id;
+  path: Url;
+  alt_text: string;
+  width: number;
+  height: number;
+}
+
+function composeUser(protoUser: UserQueryResult): User {
+  return {
+    id: protoUser.id,
+    name: protoUser.name,
+    join_date: protoUser.join_date,
+    pfp: {
+      id: protoUser.pfpId,
+      path: protoUser.path,
+      alt_text: protoUser.alt_text,
+      width: protoUser.width,
+      height: protoUser.height
+    }
+  };
+}
+
 export async function fetchUserById(id: Id): Promise<User> {
   try {
-    const user = (await sql<UserRows>`SELECT * FROM "user" WHERE id = ${id};`)[0];
-    return { ...user, pfp: await fetchImageById(user.pfp) };
+    const user = (await sql<UserRows>`
+      SELECT 
+        u.id,
+        name,
+        join_date,
+        i.id AS "pfpId",
+        i.path,
+        i.alt_text,
+        i.width,
+        i.height
+      FROM "user" AS u
+      JOIN image AS i ON i.id = u.pfp
+      WHERE id = ${id}`)[0];
+    return composeUser(user);
   } catch (e) {
     return dbError(e as Error, 'fetchUserById', id);
   }
@@ -73,14 +113,83 @@ export async function fetchUserById(id: Id): Promise<User> {
 //#endregion
 
 //#region shop
+export interface ShopQueryResult {
+  id: Id;
+  name: string;
+  location: string;
+  join_date: Date;
+  sellerId: Id;
+  sellerName: string;
+  bannerId: Id;
+  bannerPath: Url;
+  bannerAlt: string;
+  bannerWidth: number;
+  bannerHeight: number;
+  pfpId: Id;
+  pfpPath: string;
+  pfpAlt: string;
+  pfpWidth: number;
+  pfpHeight: number;
+};
+
+export interface ShopSearchResult {
+  shops: ShopQueryResult[];
+  pageCount: number;
+};
+
+function composeShop(protoShop: ShopQueryResult): Shop {
+  return {
+    id: protoShop.id,
+    name: protoShop.name,
+    location: protoShop.location,
+    manager: {
+      id: protoShop.sellerId,
+      name: protoShop.sellerName,
+      join_date: protoShop.join_date,
+      pfp: {
+        id: protoShop.pfpId,
+        path: protoShop.pfpPath,
+        alt_text: protoShop.pfpAlt,
+        width: protoShop.pfpWidth,
+        height: protoShop.pfpHeight
+      }
+    },
+    banner: {
+      id: protoShop.bannerId,
+      path: protoShop.bannerPath,
+      alt_text: protoShop.bannerAlt,
+      width: protoShop.bannerWidth,
+      height: protoShop.bannerHeight
+    }
+  };
+}
+
 export async function fetchShopById(id: Id): Promise<Shop> {
   try {
-    const shop = (await sql<ShopRows>`SELECT * FROM Shop WHERE id = ${id};`)[0];
-    return {
-      ...shop,
-      manager: await fetchUserById(shop.manager),
-      banner: await fetchImageById(shop.banner)
-    };
+    const shop = (await sql<ShopQueryResult[]>`SELECT
+          s.id, 
+          s.name, 
+          s.location, 
+          u.join_date, 
+          u.id AS "sellerId", 
+          u.name AS "sellerName", 
+          bnr.id AS "bannerId", 
+          bnr.path AS "bannerPath", 
+          bnr.alt_text AS "bannerAlt", 
+          bnr.width AS "bannerWidth", 
+          bnr.height AS "bannerHeight", 
+          pfp.id AS "pfpId", 
+          pfp.path AS "pfpPath", 
+          pfp.alt_text AS "pfpAlt", 
+          pfp.width AS "pfpWidth", 
+          pfp.height AS "pfpHeight" 
+        FROM shop AS s
+        JOIN "user" AS u ON u.id = s.manager
+        JOIN image AS bnr ON bnr.id = s.banner
+        JOIN image AS pfp ON pfp.id = u.pfp
+        WHERE s.id = ${id}
+    `)[0];
+    return composeShop(shop);
   } catch (e) {
     return dbError(e as Error, 'fetchShopById', id);
   }
@@ -90,21 +199,123 @@ export async function fetchShops(count?: number): Promise<Shop[]> {
   try {
     let shops;
 
-    if (count) shops = await sql<ShopRows>`SELECT * FROM shop LIMIT ${count}`;
-    else shops = await sql<ShopRows>`SELECT * FROM shop`;
+    if (count) shops = await sql<ShopQueryResult[]>`SELECT
+          s.id, 
+          s.name, 
+          s.location, 
+          u.join_date, 
+          u.id AS "sellerId", 
+          u.name AS "sellerName", 
+          bnr.id AS "bannerId", 
+          bnr.path AS "bannerPath", 
+          bnr.alt_text AS "bannerAlt", 
+          bnr.width AS "bannerWidth", 
+          bnr.height AS "bannerHeight", 
+          pfp.id AS "pfpId", 
+          pfp.path AS "pfpPath", 
+          pfp.alt_text AS "pfpAlt", 
+          pfp.width AS "pfpWidth", 
+          pfp.height AS "pfpHeight" 
+        FROM shop AS s
+        JOIN "user" AS u ON u.id = s.manager
+        JOIN image AS bnr ON bnr.id = s.banner
+        JOIN image AS pfp ON pfp.id = u.pfp
+        LIMIT ${count}`;
+    else shops = await sql<ShopQueryResult[]>`SELECT
+          s.id, 
+          s.name, 
+          s.location, 
+          u.join_date, 
+          u.id AS "sellerId", 
+          u.name AS "sellerName", 
+          bnr.id AS "bannerId", 
+          bnr.path AS "bannerPath", 
+          bnr.alt_text AS "bannerAlt", 
+          bnr.width AS "bannerWidth", 
+          bnr.height AS "bannerHeight", 
+          pfp.id AS "pfpId", 
+          pfp.path AS "pfpPath", 
+          pfp.alt_text AS "pfpAlt", 
+          pfp.width AS "pfpWidth", 
+          pfp.height AS "pfpHeight" 
+        FROM shop AS s
+        JOIN "user" AS u ON u.id = s.manager
+        JOIN image AS bnr ON bnr.id = s.banner
+        JOIN image AS pfp ON pfp.id = u.pfp`;
 
-    return Promise.all(shops.map(async shop => ({
-      ...shop,
-      manager: await fetchUserById(shop.manager),
-      banner: await fetchImageById(shop.banner)
-    })));
+    return Promise.all(shops.map(composeShop));
   } catch (e) {
     return dbError(e as Error, 'fetchShops', count);
   }
 }
+
+export async function searchShopAndGetCount(query: string, yearsOnPlatform: string[], currentPage: number): Promise<ShopSearchResult> {
+  if (!query) query = '';
+  const [after, before] = yearsOnPlatform;
+  const offset = (currentPage - 1) * 6;
+  const qstring = `%${query}%`;
+  try {
+    const [count, shops] = await Promise.all([
+      sql`SELECT DISTINCT COUNT(*)
+        FROM shop AS s
+        JOIN "user" AS u ON u.id = s.manager
+        WHERE 
+          (u.join_date BETWEEN ${after} AND ${before}) AND 
+          (u.name ILIKE ${qstring} OR 
+          s.name ILIKE ${qstring} OR 
+          s.location ILIKE ${qstring})`,
+
+      sql<ShopQueryResult[]>`SELECT DISTINCT 
+          s.id, 
+          s.name, 
+          s.location, 
+          u.join_date, 
+          u.id AS "sellerId", 
+          u.name AS "sellerName", 
+          bnr.id AS "bannerId", 
+          bnr.path AS "bannerPath", 
+          bnr.alt_text AS "bannerAlt", 
+          bnr.width AS "bannerWidth", 
+          bnr.height AS "bannerHeight", 
+          pfp.id AS "pfpId", 
+          pfp.path AS "pfpPath", 
+          pfp.alt_text AS "pfpAlt", 
+          pfp.width AS "pfpWidth", 
+          pfp.height AS "pfpHeight" 
+        FROM shop AS s
+        JOIN "user" AS u ON u.id = s.manager 
+        JOIN image AS pfp ON pfp.id = u.pfp 
+        JOIN image AS bnr ON bnr.id = s.banner 
+        WHERE u.role = 'seller' AND
+          (u.join_date BETWEEN ${after} AND ${before}) AND 
+          (u.name ILIKE ${qstring} OR 
+          s.name ILIKE ${qstring} OR 
+          s.location ILIKE ${qstring})
+        ORDER BY s.name LIMIT 6 OFFSET ${offset}`
+    ]);
+
+    return {
+      shops,
+      pageCount: Math.ceil(Number(count[0].count) / 6)
+    };
+  } catch (e) {
+    return dbError(e as Error, 'searchShopAndGetCount', query, yearsOnPlatform, currentPage);
+  }
+}
+
 //#endregion
 
 //#region product
+
+export interface ProductQueryResult {
+  id: Id;
+  name: string;
+  shopId: Id;
+  price: number;
+  listed_at: Date;
+  description: string;
+};
+
 export async function fetchProductById(id: Id): Promise<Product> {
   try {
     const prod = (await sql<ProductRows>`SELECT * FROM product WHERE id = ${id};`)[0];
@@ -156,7 +367,7 @@ export async function fetchProducts(count?: number): Promise<Product[]> {
     return Promise.all(prods.map(async p => ({
       id: p.id,
       price: p.price,
-      shop: p.shop,
+      shop: await fetchShopById(p.shop),
       name: p.name,
       listed_at: new Date(p.listed_at),
       tags: await fetchTagsOfProduct(p.id),
@@ -168,7 +379,7 @@ export async function fetchProducts(count?: number): Promise<Product[]> {
   }
 }
 
-export interface ProductSearchResultProduct {
+export interface ProductQueryResult {
   prodId: Id;
   prodName: string;
   price: number;
@@ -182,7 +393,7 @@ export interface ProductSearchResultProduct {
 }
 
 export interface ProductSearchResult {
-  products: ProductSearchResultProduct[];
+  products: ProductQueryResult[];
   pageCount: number;
 }
 
@@ -204,7 +415,7 @@ export async function searchProductsAndGetCount(query: string, priceRange: numbe
           s.name ILIKE ${qstring} OR
           t.title ILIKE ${qstring})`,
 
-      sql<ProductSearchResultProduct[]>`SELECT DISTINCT 
+      sql<ProductQueryResult[]>`SELECT DISTINCT 
             p.id AS "prodId",
             p.name AS "prodName",
             p.price,
@@ -313,7 +524,7 @@ export async function fetchOrderById(id: Id): Promise<Order> {
 
 export async function getTotalSales(storeId: Id): Promise<number> {
   try {
-    return (await sql<{total: number | null}[]>`
+    return (await sql<{ total: number | null; }[]>`
       SELECT SUM("quantity") AS total
         FROM item_in_order AS i
         JOIN "order" AS o ON o.id = i.order

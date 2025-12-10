@@ -6,10 +6,10 @@ import { Product, Shop } from "@/types/types";
 import { fetchShops, fetchProducts } from "@/app/lib/data";
 
 // components
-import Hero from "./hero";
-import FeaturedProducts from "./FeaturedProducts";
-import FeaturedSellers from "./FeaturedSellers";
-import Categories from "./Categories";
+import Hero from "@/app/(home)/hero";
+import FeaturedProducts from "@/app/(home)/FeaturedProducts";
+import FeaturedSellers from "@/app/(home)/FeaturedSellers";
+import Categories from "@/app/(home)/Categories";
 
 export default async function Home() {
   const products: Product[] = await fetchProducts(10);

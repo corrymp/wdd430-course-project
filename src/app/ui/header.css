@@ -1,0 +1,172 @@
+/* header */
+header.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 1rem 2rem;
+  background-color: var(--primary-color);
+  backdrop-filter: blur(6px);
+
+  transition: padding 0.3s ease;
+}
+
+.h-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* container */
+.h-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* logo */
+.header .logo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.h-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 20px;
+  color: #111827;
+}
+
+/* nav */
+.h-nav {
+  display: flex;
+  gap: 24px;
+  font-size: 15px;
+  color: #374151;
+}
+
+.h-nav a:hover {
+  color: #4f46e5;
+}
+
+.h-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.h-cart-btn {
+  font-size: 22px;
+}
+
+/* Desktop Nav */
+.nav-desktop {
+  display: flex;
+  align-items: center;
+  gap: 1.7rem;
+}
+
+.nav-desktop a {
+  text-decoration: none;
+  color: inherit;
+  font-size: 1.2rem;
+  transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.nav-desktop a:hover {
+  color: var(--accent-color);
+  transform: translateY(-2px);
+}
+
+/*========================================
+  HAMBURGER BUTTON
+========================================*/
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  color: inherit;
+  position: relative;
+  z-index: 1100;
+  /* stays above overlay */
+
+  padding: 4px;
+  transition: opacity 0.25s ease;
+}
+
+/* Show on mobile */
+@media (max-width: 768px) {
+  .nav-desktop {
+    display: none;
+  }
+
+  .hamburger {
+    display: block;
+  }
+}
+
+/*========================================
+  MOBILE NAV OVERLAY
+========================================*/
+.nav-mobile {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+
+  z-index: 1050;
+  background-color: var(--primary-color);
+  backdrop-filter: blur(10px);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 2rem;
+  overflow: hidden;
+
+  animation: mobileFade 0.35s ease forwards;
+}
+
+@keyframes mobileFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.nav-mobile a {
+  text-decoration: none;
+  color: inherit;
+  font-size: 2rem;
+  font-weight: 300;
+  transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.nav-mobile a:hover {
+  color: var(--accent-color);
+  transform: scale(1.05);
+}

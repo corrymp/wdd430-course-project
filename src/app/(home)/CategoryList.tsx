@@ -8,8 +8,20 @@ import { Splide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
 import type { Splide as SplideInstance } from "@splidejs/splide";
 import { useState } from "react";
+import { useMounted } from "@/app/lib/hooks";
 
-export default function CategoryList({categories}: {categories: Tag[]}) {
+function randomCats(cats: Array<Tag>, count: number): Array<Tag> {
+  const array = [...cats];
+  for (let i = array.length, r = 0; --i; r = (Math.random() * i) | 0, [array[i], array[r]] = [array[r], array[i]]);
+  array.length = Math.min(count, array.length);
+  return array;
+}
+
+export default function CategoryList({ categories }: { categories: Tag[]; }) {
+  const didMount = useMounted();
+
+  const [cats] = useState(() => randomCats(categories, 6));
+
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
   const handleMove = (_splide: SplideInstance, newIndex: number) => {
@@ -37,21 +49,28 @@ export default function CategoryList({categories}: {categories: Tag[]}) {
         aria-label="Explore Categories"
         onMove={handleMove}
       >
-      {categories.map((cat) => (
-        <SplideSlide key={cat.id}>
-          <div className="category-card">
-            <Link href={`products?query=${cat.title}`}></Link>
-            <div className="category-img">
-              <PlaceholderImage width={100} height={100} />
+        {cats.map((cat) => (
+          <SplideSlide key={cat.id}>
+            <div className="category-card">
+              {didMount && (
+                <Link
+                  href={`products?query=${cat.title}`}
+                  className="category-link"
+                >
+                  <div className="category-img">
+                    <PlaceholderImage width={100} height={100} />
+                  </div>
+                  <p className="cat-name">{cat.title}</p>
+                </Link>
+
+              )}
             </div>
-            <p className="cat-name">{cat.title}</p>
-          </div>
-        </SplideSlide>
-      ))}
+          </SplideSlide>
+        ))}
       </Splide>
-      
+
       <div className="cat-pagination">
-        {categories.map((_, i) => (
+        {cats.map((_, i) => (
           <span
             key={i}
             className={`dot ${i === activeIndex ? "active" : ""}`}

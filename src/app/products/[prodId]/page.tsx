@@ -12,7 +12,6 @@ export async function generateMetadata({ params }: {
 }): Promise<Metadata> {
   const _params = await params;
   const id = _params.prodId
-  console.log('metadata', _params, id);
   const product: Product = await fetchProductById(Number(id));
   return {
     title: product.name,

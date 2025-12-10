@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import "../globals.css"
+import "@/app//ui/footer.css"
 
 export default function Footer() {
   return (
@@ -9,7 +9,7 @@ export default function Footer() {
 
         <div className="f-col">
           <div className="f-logo">
-            <Image src="/logo.svg" alt="Logo" width={50} height={50} />
+            <Image src="/images/logo.svg" alt="Logo" width={50} height={50} />
             <h3>Handcrafted Haven</h3>
           </div>
           <p className="f-about">
@@ -20,8 +20,8 @@ export default function Footer() {
         <div className="f-col">
           <h4>Explore</h4>
           <Link href="/products">All Products</Link>
-          <Link href="/categories">Categories</Link>
-          <Link href="/sellers">Meet the Sellers</Link>
+          <Link href="/products">Categories</Link>
+          <Link href="/profiles">Meet the Sellers</Link>
           <Link href="/contact">Contact</Link>
         </div>
 

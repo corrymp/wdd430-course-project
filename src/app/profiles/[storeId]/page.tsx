@@ -29,7 +29,6 @@ export async function generateMetadata({ params }: {
 }): Promise<Metadata> {
   const _params = await params;
   const id = _params.storeId;
-  console.log('metadata', _params, id);
   const shop: Shop = await fetchShopById(Number(id));
   return {
     title: shop.name,
@@ -45,7 +44,6 @@ export default async function SellerProfile(props: { params: Promise<{ storeId: 
   const totalSales = await getTotalSales(id);
   const reviews: Review[] = await fetchReviewsOfSeller(id);
   const seller: User = shop.manager;
-  console.log(reviews);
   return (
     <div className={styles.container}>
       {/* Seller Info */}

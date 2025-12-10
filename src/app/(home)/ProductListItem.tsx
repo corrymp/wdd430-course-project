@@ -3,12 +3,12 @@ import TagList from "@/app/ui/tag-list";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function ProductListItem({ product }: { product: Product; }) {
+export default function ProductListItem({ product }: { product: Product }) {
   const seller: Shop = product.shop;
 
   return (
     <div className="product-list-item-card">
-      <Link href={`/products/${product.id}`}>
+      <Link href={`/products/${product.id}`} className="product-link">
         <div className="product-image-wrapper">
           <Image
             className="home-product-image"
@@ -16,9 +16,8 @@ export default function ProductListItem({ product }: { product: Product; }) {
             alt={product.name}
             width={250}
             height={250}
+            style={{ objectFit: "cover" }}
           />
-
-          {/* Hover CTA */}
           <button className="product-read-more">Read more →</button>
         </div>
 
@@ -31,7 +30,8 @@ export default function ProductListItem({ product }: { product: Product; }) {
           <p className="home-product-shop">from {seller.name}</p>
         </div>
       </Link>
-      <TagList tags={product.tags} limit={2} />
+      {/* TagList contains <Link> tags, which can not be nested in other <Link> tags */}
+      <TagList tags={product.tags} limit={3} />
     </div>
   );
 }
