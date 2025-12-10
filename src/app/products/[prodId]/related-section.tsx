@@ -2,7 +2,7 @@ import { Tag } from "@/types/types";
 
 export default function RelatedSection({ tags }: { tags: Tag[]; }) {
   // TODO: make list of related items based off tags
-  console.log('TODO: use these:', tags)
+  console.warn('TODO: use these:', tags);
   return (
     <section className="p-related">
       <h3 style={{ margin: 0, fontWeight: 600 }}>Related products</h3>

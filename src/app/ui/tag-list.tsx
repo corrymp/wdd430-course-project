@@ -1,3 +1,4 @@
+'use client';
 import { Tag } from "@/types/types";
 import Link from "next/link";
 

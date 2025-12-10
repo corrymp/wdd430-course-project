@@ -4,10 +4,10 @@ import { createReview, ReviewState } from '@/app/lib/actions';
 import { Id } from '@/types/types';
 
 export default function ReviewForm({prodId}: {prodId: Id}) {
-
   const initialState: ReviewState = { message: null, errors: {} };
   const [state, formAction] = useActionState(createReview, initialState);
   // TODO: display errors from state
+  console.warn('TODO: display errors from state:', state);
   return (
     <form action={formAction} className="p-review-form" style={{ marginTop: 12 }}>
       <div>

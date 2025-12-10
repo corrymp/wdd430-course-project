@@ -27,10 +27,11 @@ export default function ProductListItem({ product }: { product: Product }) {
             <span className="home-product-price">${product.price}</span>
           </div>
 
-          {/* <p className="home-product-shop">from {seller.name}</p> */}
-          <TagList tags={product.tags} limit={3} />
+          <p className="home-product-shop">from {seller.name}</p>
         </div>
       </Link>
+      {/* TagList contains <Link> tags, which can not be nested in other <Link> tags */}
+      <TagList tags={product.tags} limit={3} />
     </div>
   );
 }

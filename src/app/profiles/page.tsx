@@ -1,26 +1,45 @@
-import { ProductSearchResultProduct, searchProductsAndGetCount } from "@/app/lib/data";
+import { ShopSearchResultShop, searchShopAndGetCount } from "@/app/lib/data";
 import Pagination from "@/app/ui/pagination";
-import TagList from "@/app/ui/tag-list";
 import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import Search from "@/app/ui/search";
+import Search from "@/app/ui/searchShops";
+import { date, dateFrom } from "../lib/utils";
+import '@/app/ui/search-pages.css';
 
-async function SearchItems({ products }: { products: ProductSearchResultProduct[]; }) {
+async function SearchItems({ shops }: { shops: ShopSearchResultShop[]; }) {
   return (
-    <ul>
-      {products.map(product => {
-        console.log(product);
-        const image = product.images[0];
+    <ul className="search-results profiles-list">
+      {shops.map(shop => {
+        const banner = shop.banner;
+        const pfp = shop.pfp;
         return (
-          <li key={product.prodId}>
-            <Link href={`products/${product.prodId}`}>
-              <h3>{product.prodName}</h3>
-              <p>${product.price}</p>
-              <Image src={image.path} alt={image.alt_text} width={image.width} height={image.height} />
+          <li className="result-item search-item" key={shop.sellerId}>
+            <Link className="profiles-link-main search-item-link-main" href={`profiles/${shop.shopId}`} style={{
+              backgroundImage: `url('${banner.path}')`
+            }}>
+              <Image 
+                className="profiles-pfp search-res-main-img" 
+                src={pfp.path} 
+                alt={pfp.alt_text} 
+                width={pfp.width} 
+                height={pfp.height}
+              />
+              <h3>{shop.shopName}</h3>
             </Link>
-            <p><Link href={`shops/${product.shopId}`}>{product.shopName}</Link> | <Link href={`sellers/${product.managerId}`}>{product.managerName}</Link> | {product.location}</p>
-            <TagList tags={product.tags} />
+            <p>
+              <Link 
+                className="profiles-link-shop" 
+                href={`profiles/${shop.shopId}`}
+              >{shop.shopName}</Link> |{' '}
+
+              <Link 
+                className="profiles-link-prof" 
+                href={`profiles/${shop.sellerId}`}
+              >{shop.sellerName}</Link> |{' '}
+
+              <span className="profiles-loc">{shop.location}</span>
+            </p>
           </li>
         );
       })}
@@ -28,31 +47,35 @@ async function SearchItems({ products }: { products: ProductSearchResultProduct[
   );
 }
 
-export default async function Page(props: { searchParams?: Promise<{ query?: string; priceRangeLo?: number; priceRangeHi?: number; page?: string; }>; }) {
-  // TODO: make this a searchable list of sellers/shops instead of products
+export default async function Page(props: { searchParams?: Promise<{ query?: string; joinedBefore?: string; joinedAfter?: string; page?: string; }>; }) {
   const searchParams = await props.searchParams;
   const query = searchParams?.query || '';
-  const priceRangeLo = searchParams?.priceRangeLo || 0;
-  const priceRangeHi = searchParams?.priceRangeHi || 9999;
-  const priceRange = [priceRangeLo, priceRangeHi];
+
+  // current date and date from before users could have joined when join date not being used to search
+  const joinedBefore = dateFrom(searchParams?.joinedBefore) ?? date();
+  const joinedAfter = dateFrom(searchParams?.joinedAfter) ?? '2015-09-29';
+  const joinedBetween = [joinedAfter, joinedBefore];
+
   const currentPage = Number(searchParams?.page) || 1;
-  const { products, pageCount } = await searchProductsAndGetCount(query, priceRange, currentPage);
+  const { shops, pageCount } = await searchShopAndGetCount(query, joinedBetween, currentPage);
 
   return (
-    <>
-      <h1>All Products</h1>
-      <Search placeholder="Search products..." />
+    <section className="search-page">
+      <h2>Shops</h2>
+      <Search placeholder="Search shops..." />
       <Suspense fallback={
-        <ul>
-          <li style={{ backgroundColor: '#aaa', width: '100%', height: '60px', margin: '10px 0' }}></li>
-          <li style={{ backgroundColor: '#aaa', width: '100%', height: '60px', margin: '10px 0' }}></li>
-          <li style={{ backgroundColor: '#aaa', width: '100%', height: '60px', margin: '10px 0' }}></li>
-          <li style={{ backgroundColor: '#aaa', width: '100%', height: '60px', margin: '10px 0' }}></li>
+        <ul className="search-results">
+          <li className="search-item" style={{ backgroundColor: '#aaa', width: '100%', height: '100%', margin: '10px 0' }}></li>
+          <li className="search-item" style={{ backgroundColor: '#aaa', width: '100%', height: '100%', margin: '10px 0' }}></li>
+          <li className="search-item" style={{ backgroundColor: '#aaa', width: '100%', height: '100%', margin: '10px 0' }}></li>
+          <li className="search-item" style={{ backgroundColor: '#aaa', width: '100%', height: '100%', margin: '10px 0' }}></li>
+          <li className="search-item" style={{ backgroundColor: '#aaa', width: '100%', height: '100%', margin: '10px 0' }}></li>
+          <li className="search-item" style={{ backgroundColor: '#aaa', width: '100%', height: '100%', margin: '10px 0' }}></li>
         </ul>
       }>
-        <SearchItems products={products} />
+        <SearchItems shops={shops} />
       </Suspense>
       <Pagination totalPages={pageCount} />
-    </>
+    </section>
   );
 }

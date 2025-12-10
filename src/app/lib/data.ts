@@ -1,7 +1,7 @@
 'use server';
 import postgres from 'postgres';
 import {
-  Id,
+  Id, Url,
   Image, ImageRows,
   User, UserRows,
   Shop, ShopRows,
@@ -11,7 +11,7 @@ import {
   Product, ProductRows,
   OrderItem, ItemInOrderRows
 } from '@/types/types';
-import { mockImageList } from './mock-data';
+import { mockImageList } from '@/app/lib/mock-data';
 
 const sql = postgres(process.env.POSTGRESS_URL!, { ssl: 'require' });
 
@@ -64,7 +64,15 @@ async function fetchImagesOfReview(reviewId: Id): Promise<Image[]> {
 //#region user
 export async function fetchUserById(id: Id): Promise<User> {
   try {
-    const user = (await sql<UserRows>`SELECT * FROM "user" WHERE id = ${id};`)[0];
+    const user = (await sql<UserRows>`
+      SELECT 
+        id,
+        name,
+        pfp,
+        join_date
+      FROM "user" 
+      WHERE id = ${id}
+    `)[0];
     return { ...user, pfp: await fetchImageById(user.pfp) };
   } catch (e) {
     return dbError(e as Error, 'fetchUserById', id);
@@ -102,6 +110,105 @@ export async function fetchShops(count?: number): Promise<Shop[]> {
     return dbError(e as Error, 'fetchShops', count);
   }
 }
+
+export interface ShopSearchResultShop {
+  shopId: Id;
+  shopName: string;
+  location: string;
+  banner: Image;
+
+  bannerId: Id;
+  bannerAlt: string;
+  bannerPath: Url;
+  bannerWidth: number;
+  bannerHeight: number;
+
+  sellerId: Id;
+  sellerName: string;
+  joined_date: Date;
+  pfp: Image;
+
+  pfpId: Id;
+  pfpAlt: string;
+  pfpPath: Url;
+  pfpWidth: number;
+  pfpHeight: number;
+}
+
+export interface ShopSearchResult {
+  shops: ShopSearchResultShop[];
+  pageCount: number;
+}
+
+export async function searchShopAndGetCount(query: string, yearsOnPlatform: string[], currentPage: number): Promise<ShopSearchResult> {
+  if (!query) query = '';
+  const [after, before] = yearsOnPlatform;//.map(date => dateFrom(date));
+  const offset = (currentPage - 1) * 6;
+  const qstring = `%${query}%`;
+  try {
+    const [count, products] = await Promise.all([
+      sql`SELECT DISTINCT COUNT(*)
+        FROM shop AS s
+        JOIN "user" AS u ON u.id = s.manager
+        WHERE 
+          (u.join_date BETWEEN ${after} AND ${before}) AND 
+          (u.name ILIKE ${qstring} OR 
+          s.name ILIKE ${qstring} OR 
+          s.location ILIKE ${qstring})`,
+
+      sql<ShopSearchResultShop[]>`SELECT DISTINCT 
+          s.id AS "shopId", 
+          u.id AS "sellerId", 
+          s.name AS "shopName", 
+          u.name AS "sellerName", 
+          s.location, u.join_date, 
+          bnr.id AS "bannerId", 
+          bnr.path AS "bannerPath", 
+          bnr.alt_text AS "bannerAlt", 
+          bnr.width AS "bannerWidth", 
+          bnr.height AS "bannerHeight", 
+          pfp.id AS "pfpId", 
+          pfp.path AS "pfpPath", 
+          pfp.alt_text AS "pfpAlt", 
+          pfp.width AS "pfpWidth", 
+          pfp.height AS "pfpHeight" 
+        FROM shop AS s
+        JOIN "user" AS u ON u.id = s.manager 
+        JOIN image AS pfp ON pfp.id = u.pfp 
+        JOIN image AS bnr ON bnr.id = s.banner 
+        WHERE u.role = 'seller' AND
+          (u.join_date BETWEEN ${after} AND ${before}) AND 
+          (u.name ILIKE ${qstring} OR 
+          s.name ILIKE ${qstring} OR 
+          s.location ILIKE ${qstring})
+        ORDER BY s.name LIMIT 6 OFFSET ${offset}`
+    ]);
+
+    return {
+      shops: await Promise.all(products.map(async shop => ({
+        ...shop,
+        banner: {
+          id: shop.bannerId,
+          path: shop.bannerPath,
+          alt_text: shop.bannerAlt,
+          width: shop.bannerWidth,
+          height: shop.bannerHeight
+        },
+        pfp: {
+          id: shop.pfpId,
+          path: shop.pfpPath,
+          alt_text: shop.pfpAlt,
+          width: shop.pfpWidth,
+          height: shop.pfpHeight
+        }
+      }))),
+      pageCount: Math.ceil(Number(count[0].count) / 6)
+    };
+  } catch (e) {
+    return dbError(e as Error, 'searchShopAndGetCount', query, yearsOnPlatform, currentPage);
+  }
+}
+
 //#endregion
 
 //#region product
@@ -156,7 +263,7 @@ export async function fetchProducts(count?: number): Promise<Product[]> {
     return Promise.all(prods.map(async p => ({
       id: p.id,
       price: p.price,
-      shop: p.shop,
+      shop: await fetchShopById(p.shop),
       name: p.name,
       listed_at: new Date(p.listed_at),
       tags: await fetchTagsOfProduct(p.id),
@@ -313,7 +420,7 @@ export async function fetchOrderById(id: Id): Promise<Order> {
 
 export async function getTotalSales(storeId: Id): Promise<number> {
   try {
-    return (await sql<{total: number | null}[]>`
+    return (await sql<{ total: number | null; }[]>`
       SELECT SUM("quantity") AS total
         FROM item_in_order AS i
         JOIN "order" AS o ON o.id = i.order

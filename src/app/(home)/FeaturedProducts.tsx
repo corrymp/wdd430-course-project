@@ -3,7 +3,7 @@
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
 import type { Product } from "@/types/types";
-import ProductListItem from "./ProductListItem";
+import ProductListItem from "@/app/(home)/ProductListItem";
 
 export default function FeaturedProducts({
   products,

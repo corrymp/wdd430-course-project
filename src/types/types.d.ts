@@ -1,6 +1,7 @@
 /** @description Database primary key */
 export type Id = number;
 export type Url = string;
+export type Role = 'user' | 'seller' | 'admin';
 
 //#region objects
 export interface Image {
@@ -87,6 +88,9 @@ export interface UserRow extends TableRow {
   name: string;
   pfp: Id;
   join_date: Date;
+  email: string;
+  role: Role;
+  password_hash: string
 };
 
 export interface ShopRow extends TableRow {

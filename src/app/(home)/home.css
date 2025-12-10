@@ -2,7 +2,7 @@
   outline: red solid 1px;
 } */
 .home-page {
-  background-color: var(--foreground);
+  background-color: var(--background);
 }
 /* ================= Hero Section ================= */
 .home-hero {
