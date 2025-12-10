@@ -92,7 +92,7 @@ function composeUser(protoUser: UserQueryResult): User {
 
 export async function fetchUserById(id: Id): Promise<User> {
   try {
-    const user = (await sql<UserRows>`
+    const user = (await sql<UserQueryResult[]>`
       SELECT 
         u.id,
         name,
@@ -104,7 +104,7 @@ export async function fetchUserById(id: Id): Promise<User> {
         i.height
       FROM "user" AS u
       JOIN image AS i ON i.id = u.pfp
-      WHERE id = ${id}`)[0];
+      WHERE u.id = ${id}`)[0];
     return composeUser(user);
   } catch (e) {
     return dbError(e as Error, 'fetchUserById', id);
